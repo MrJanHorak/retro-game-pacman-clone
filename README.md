@@ -45,6 +45,7 @@ Game Grid Design legend: (Numbers in the level data to represent items in the ga
 6 = vertical 
 7 = pellet
 8 = power-up
+9 = ghost gate
 
 10 = double lined top left
 11 = double lined top right
