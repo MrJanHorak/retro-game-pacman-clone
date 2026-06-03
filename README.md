@@ -77,3 +77,8 @@ Game Grid Design legend: (Numbers in the level data to represent items in the ga
 45 = Galboss
 46 = Bell
 45 = Key
+
+50 = square double-lined top-left corner
+51 = square double-lined top-right corner
+52 = square double-lined bottom-right corner
+53 = square double-lined bottom-left corner
