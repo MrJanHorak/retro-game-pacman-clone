@@ -29,3 +29,4 @@ I will be updating this README.MD along the way as this project takes shape.
 * [Blinky has a Cruise ELroy mode triggered by how many pellets PacMan 'eats'](https://pacman.fandom.com/wiki/Cruise_Elroy)
 * [Specific bonus points earned for catching ghosts](https://pacman.fandom.com/wiki/Vulnerable_Ghost)
 * [So called Coffee Break scenes between certain levels](https://pacman.fandom.com/wiki/Vulnerable_Ghost)
+* Official grid is 224 x 288 pixels or 28 tiles wide and 36 tiles high. Game board is 28 x 31 to leave room for status bars at th top and bottom of the screen.
