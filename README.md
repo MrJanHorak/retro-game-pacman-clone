@@ -30,3 +30,49 @@ I will be updating this README.MD along the way as this project takes shape.
 * [Specific bonus points earned for catching ghosts](https://pacman.fandom.com/wiki/Vulnerable_Ghost)
 * [So called Coffee Break scenes between certain levels](https://pacman.fandom.com/wiki/Vulnerable_Ghost)
 * Official grid is 224 x 288 pixels or 28 tiles wide and 36 tiles high. Game board is 28 x 31 to leave room for status bars at th top and bottom of the screen.
+
+
+#### Level design guide/legend/key
+
+Game Grid Design legend: (Numbers in the level data to represent items in the game and game board aprox: 39-40 Sprites)
+
+0 = empty
+1 = top left corner
+2 = top right corner 
+3 = bottom right corner
+4 = bottom left corner 
+5 = horizontal
+6 = vertical 
+7 = pellet
+8 = power-up
+
+10 = double lined top left
+11 = double lined top right
+12 = double lined bottom right
+13 = double lined bottom left
+14 = double horizontal
+15 = double vertical
+
+20 = horizontal straight with top left
+21 = horizontal straight with top right
+22 = horizontal straight with bottom right
+23 = horizontal straight with bottom left
+24 = horizontal straight with top left
+25 = horizontal straight with top right
+26 = horizontal straight with bottom right
+27 = horizontal straight with bottom left
+
+30 = paceman
+31 = Blinky
+32 = Pinky
+33 = Inky
+34 = Clyde
+
+40 = Cherry
+41 = Strawberry
+42 = Orange
+43 = Apple
+44 = Melon
+45 = Galboss
+46 = Bell
+45 = Key
