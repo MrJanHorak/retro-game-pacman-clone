@@ -287,9 +287,11 @@ textarea {
 }
 
 .game-canvas {
-  aspect-ratio: 7 / 9;
-  border: 2px solid yellow;
+  aspect-ratio: 28 / 31;
+  /* border: 2px solid yellow; */
   background-color: black;
   max-width: 600px;
   height: 70vh;
+  background-image: url('../assets/mazeSprites/maze_blue.svg');
+  background-size: contain;
 }
