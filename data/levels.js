@@ -1,4 +1,4 @@
-{
+const levelsData = {
     "level1": {
         "gameGrid": [
             [10,14,14,14,14,14,14,14,14,14,14,14,14,21,20,14,14,14,14,14,14,14,14,14,14,14,14,11],
@@ -92,3 +92,5 @@
         "cruiseElroyTrigger": 192
     }
 }
+
+export { levelsData }

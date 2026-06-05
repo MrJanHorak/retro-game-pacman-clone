@@ -287,6 +287,7 @@ textarea {
 }
 
 .game-canvas {
+  position: relative;
   aspect-ratio: 28 / 31;
   /* border: 2px solid yellow; */
   background-color: black;
@@ -295,3 +296,52 @@ textarea {
   background-image: url('../assets/mazeSprites/maze_blue.svg');
   background-size: contain;
 }
+
+.game-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  grid-template-rows: repeat(31, 1fr); 
+}
+
+
+.pacman,
+.ghost {
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.pacman {
+  background-image: url('../assets/characterSprites/pacman/pacman_left.svg');
+  background-size: 400%;
+  /* background-color: yellow; */
+}
+
+.blinky {
+  background-image: url('../assets/characterSprites/blinky/blinky_up.svg');
+  background-size: 200%;
+  /* background-color: red; */
+}
+.pinky {
+  background-image: url('../assets/characterSprites/pinky/pinky_up.svg');
+  background-size: 200%;
+  /* background-color: pink; */
+}
+.inky {
+  background-image: url('../assets/characterSprites/inky/inky_up.svg');
+  background-size: 200%;
+  /* background-color: cyan; */ 
+}
+.clyde {
+  background-image: url('../assets/characterSprites/clyde/clyde_up.svg');
+  background-size: 200%;
+  /* background-color: orange; */
+} 
