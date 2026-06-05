@@ -9,7 +9,8 @@
 
 
 // initial variables for game state
-let score, highScore, lives, gameOver, gameStarted, level, player, bonus
+let score = 0, highScore = 0, lives = 0
+let gameOver, gameStarted, level, player, bonus
 
 // Cached DOM elements
 const body = document.querySelector('body')
@@ -21,15 +22,35 @@ const topInfoBar = document.createElement('div')
 topInfoBar.classList.add('top-info-bar')
 body.appendChild(topInfoBar)
 
-const scoreEl = document.createElement('div')
-scoreEl.classList.add('score')
-scoreEl.textContent = `Score: ${score}`
-topInfoBar.appendChild(scoreEl)
+const oneUpEl = document.createElement('div')
+oneUpEl.classList.add('oneUp', 'playerInfo')
+oneUpEl.textContent = '1UP'
+topInfoBar.appendChild(oneUpEl)
+
+const scoreOneEl = document.createElement('div')
+scoreOneEl.classList.add('score')
+scoreOneEl.textContent = `${score}`
+oneUpEl.appendChild(scoreOneEl)
+
+const highScoreLabelEl = document.createElement('div')
+highScoreLabelEl.classList.add('high-score')
+highScoreLabelEl.textContent = `High Score`
+topInfoBar.appendChild(highScoreLabelEl)
 
 const highScoreEl = document.createElement('div')
-highScoreEl.classList.add('high-score')
-highScoreEl.textContent = `High Score: ${highScore}`
-topInfoBar.appendChild(highScoreEl)
+highScoreEl.classList.add('high-score-value','score')
+highScoreEl.textContent = `${highScore}`
+highScoreLabelEl.appendChild(highScoreEl)
+
+const twoUpEl = document.createElement('div')
+twoUpEl.classList.add('twoUp','playerInfo')
+twoUpEl.textContent = '2UP'
+topInfoBar.appendChild(twoUpEl)
+
+const scoreTwoEl = document.createElement('div')
+scoreTwoEl.classList.add('score')
+scoreTwoEl.textContent = `${score}`
+twoUpEl.appendChild(scoreTwoEl)
 
 const gameCanvas = document.createElement('canvas')
 gameCanvas.classList.add('game-canvas')

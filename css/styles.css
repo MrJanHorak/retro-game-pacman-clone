@@ -9,7 +9,7 @@ body {
     height: 100vh;
 
     background-color: black;
-    color: yellow;
+    color: rgb(255, 255, 255);
 }
 
 
@@ -266,6 +266,24 @@ textarea {
     justify-content: space-between;
     width: 80vw;
     padding: 10px;
+}
+
+.playerInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.high-score {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 160px;
+}
+
+.score {
+  width: 100%;
+  text-align: right;
 }
 
 .game-canvas {
