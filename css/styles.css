@@ -3,6 +3,7 @@ body {
     font-weight: 400; 
 
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -257,4 +258,19 @@ textarea {
   h3 {
     page-break-after: avoid;
   }
+}
+
+.top-info-bar,
+.bottom-info-bar {
+    display: flex;
+    justify-content: space-between;
+    width: 80vw;
+    padding: 10px;
+}
+
+.game-canvas {
+    border: 2px solid yellow;
+    background-color: black;
+    width: 80vw;
+    height: 60vh;
 }
