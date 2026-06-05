@@ -1,0 +1,46 @@
+0 = empty
+1 = top left corner
+2 = top right corner 
+3 = bottom right corner
+4 = bottom left corner 
+5 = horizontal
+6 = vertical 
+7 = pellet
+8 = power-up
+9 = ghost gate
+
+10 = double lined top left
+11 = double lined top right
+12 = double lined bottom right
+13 = double lined bottom left
+14 = double horizontal
+15 = double vertical
+
+20 = horizontal straight with top left
+21 = horizontal straight with top right
+22 = horizontal straight with bottom right
+23 = horizontal straight with bottom left
+24 = horizontal straight with top left
+25 = horizontal straight with top right
+26 = horizontal straight with bottom right
+27 = horizontal straight with bottom left
+
+30 = paceman
+31 = Blinky
+32 = Pinky
+33 = Inky
+34 = Clyde
+
+40 = Cherry
+41 = Strawberry
+42 = Orange
+43 = Apple
+44 = Melon
+45 = Galboss
+46 = Bell
+45 = Key
+
+50 = square double-lined top-left corner
+51 = square double-lined top-right corner
+52 = square double-lined bottom-right corner
+53 = square double-lined bottom-left corner

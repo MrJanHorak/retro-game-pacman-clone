@@ -18,9 +18,13 @@ const body = document.querySelector('body')
 
 
 // create DOM elements for game play
+const gameContainer = document.createElement('div')
+gameContainer.classList.add('game-container')
+body.appendChild(gameContainer)
+
 const topInfoBar = document.createElement('div')
 topInfoBar.classList.add('top-info-bar')
-body.appendChild(topInfoBar)
+gameContainer.appendChild(topInfoBar)
 
 const oneUpEl = document.createElement('div')
 oneUpEl.classList.add('oneUp', 'playerInfo')
@@ -54,11 +58,11 @@ twoUpEl.appendChild(scoreTwoEl)
 
 const gameCanvas = document.createElement('canvas')
 gameCanvas.classList.add('game-canvas')
-body.appendChild(gameCanvas)
+gameContainer.appendChild(gameCanvas)
 
 const bottomInfoBar = document.createElement('div')
 bottomInfoBar.classList.add('bottom-info-bar')
-body.appendChild(bottomInfoBar)
+gameContainer.appendChild(bottomInfoBar)
 
 const livesEl = document.createElement('div')
 livesEl.classList.add('lives')
