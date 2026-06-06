@@ -43,6 +43,7 @@ const levelsData = {
             "points": 100,
             "location": [13, 17]
         },
+        lives: 3,
         "cruiseElroyTrigger": 224
     },
     "level2":{

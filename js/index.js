@@ -9,11 +9,13 @@ console.log('levelsData: ', levelsData)
 
 // initial variables for game state
 let score = 0, highScore = 0, lives = 0
-let gameOver, gameStarted, level, player, bonus, levelData, gameGridData
+let gameOver, gameStarted, level, player, bonus, levelData, gameGridData, cruiseElroyTrigger
 let pacmanPosition, blinkyPosition, pinkyPosition, inkyPosition, clydePosition, bonusPosition
 
 levelData = levelsData.level1
 gameGridData = levelData.gameGrid
+cruiseElroyTrigger = levelData.cruiseElroyTrigger   
+lives = levelData.lives
 
 pacmanPosition = levelData.playerStart
 blinkyPosition = levelData.blinkyStart
@@ -22,8 +24,6 @@ inkyPosition = levelData.inkyStart
 clydePosition = levelData.clydeStart
 bonusPosition = levelData.bonusInfo.location
 bonus = levelData.bonusInfo.type
-
-
 
 
 // Cached DOM elements
@@ -78,7 +78,6 @@ const gameGrid = document.createElement('div')
 gameGrid.classList.add('game-grid')
 gameCanvas.appendChild(gameGrid)
 
-
 const bottomInfoBar = document.createElement('div')
 bottomInfoBar.classList.add('bottom-info-bar')
 gameContainer.appendChild(bottomInfoBar)
@@ -94,6 +93,33 @@ bonusEl.textContent = `Bonus: ${bonus}`
 bottomInfoBar.appendChild(bonusEl)
 
 // event listeners (for keyboard input, buttons, etc.)
+// event listeners for WASD and arrow keys for player movement
+document.addEventListener('keydown', (event) => {
+    switch(event.key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+            // move player up
+            break
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+            // move player down
+            break
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+            // move player left
+            break
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+            // move player right
+            break
+    }
+})
+
+// event listeners for start button (space), restart button (ESC), etc.
 
 
 
