@@ -26,20 +26,37 @@ bonus = levelData.bonusInfo.type
 
 
 // functions
-const playerWallColisionDetection = () => {
-    
+const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
+    console.log('checking for wall collision')
+    console.log('player position: ', playerPosition0, playerPosition1)
+    if(gameGridData[playerPosition1][playerPosition0]>0 && gameGridData[playerPosition1][playerPosition0] <= 53 ) {
+        console.log('wall collision detected')
+        return true
+    }
+
 }
 
 const movePacmanRight = (pacmanPosition) => {
-    console.log('move pacman right')    
+    console.log('move pacman right')   
+    console.log('pacman position before: ', pacmanPosition)
     pacmanPosition[0] += 1
+    if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
+        pacmanPosition[0] -= 1
+        return
+    }
+    console.log('pacman position after: ', pacmanPosition)
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
+    console.log(' paceman postion after style change: ', pacmanPosition)
 }
 
 const movePacmanLeft = (pacmanPosition) => {
     console.log('move pacman left')    
     pacmanPosition[0] -= 1
+    if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
+        pacmanPosition[0] += 1
+        return
+    }
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
 }
@@ -47,6 +64,10 @@ const movePacmanLeft = (pacmanPosition) => {
 const movePacmanUp = (pacmanPosition) => {
     console.log('move pacman up')    
     pacmanPosition[1] -= 1
+    if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
+        pacmanPosition[1] += 1
+        return
+    }
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
 }
@@ -54,6 +75,10 @@ const movePacmanUp = (pacmanPosition) => {
 const movePacmanDown = (pacmanPosition) => {
     console.log('move pacman down')    
     pacmanPosition[1] += 1
+    if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
+        pacmanPosition[1] -= 1
+        return
+    }
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
 }

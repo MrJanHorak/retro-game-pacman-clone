@@ -43,8 +43,6 @@ Game Grid Design legend: (Numbers in the level data to represent items in the ga
 4 = bottom left corner 
 5 = horizontal
 6 = vertical 
-7 = pellet
-8 = power-up
 9 = ghost gate
 
 10 = double lined top left
@@ -63,22 +61,25 @@ Game Grid Design legend: (Numbers in the level data to represent items in the ga
 26 = horizontal straight with bottom right
 27 = horizontal straight with bottom left
 
-30 = paceman
-31 = Blinky
-32 = Pinky
-33 = Inky
-34 = Clyde
-
-40 = Cherry
-41 = Strawberry
-42 = Orange
-43 = Apple
-44 = Melon
-45 = Galboss
-46 = Bell
-45 = Key
-
 50 = square double-lined top-left corner
 51 = square double-lined top-right corner
 52 = square double-lined bottom-right corner
 53 = square double-lined bottom-left corner
+
+60 = Cherry
+61 = Strawberry
+62 = Orange
+63 = Apple
+64 = Melon
+65 = Galboss
+66 = Bell
+65 = Key
+
+70 = paceman
+71 = Blinky
+72 = Pinky
+73 = Inky
+74 = Clyde
+
+80 = pellet
+81 = power-up
