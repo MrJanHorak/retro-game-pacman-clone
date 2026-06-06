@@ -2,7 +2,6 @@
 import { levelsData } from '../data/levels.js'
 
 // imports of game functions
-
 // import classes (Player, Ghost, etc.)
 
 console.log('levelsData: ', levelsData)
@@ -25,6 +24,39 @@ clydePosition = levelData.clydeStart
 bonusPosition = levelData.bonusInfo.location
 bonus = levelData.bonusInfo.type
 
+
+// functions
+const playerWallColisionDetection = () => {
+    
+}
+
+const movePacmanRight = (pacmanPosition) => {
+    console.log('move pacman right')    
+    pacmanPosition[0] += 1
+    pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
+    pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
+}
+
+const movePacmanLeft = (pacmanPosition) => {
+    console.log('move pacman left')    
+    pacmanPosition[0] -= 1
+    pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
+    pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
+}
+
+const movePacmanUp = (pacmanPosition) => {
+    console.log('move pacman up')    
+    pacmanPosition[1] -= 1
+    pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
+    pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
+}
+
+const movePacmanDown = (pacmanPosition) => {
+    console.log('move pacman down')    
+    pacmanPosition[1] += 1
+    pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
+    pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
+}
 
 // Cached DOM elements
 const body = document.querySelector('body')
@@ -99,22 +131,22 @@ document.addEventListener('keydown', (event) => {
         case 'ArrowUp':
         case 'w':
         case 'W':
-            // move player up
+            movePacmanUp(pacmanPosition)
             break
         case 'ArrowDown':
         case 's':
         case 'S':
-            // move player down
+            movePacmanDown(pacmanPosition)
             break
         case 'ArrowLeft':
         case 'a':
         case 'A':
-            // move player left
+            movePacmanLeft(pacmanPosition)
             break
         case 'ArrowRight':
         case 'd':
         case 'D':
-            // move player right
+            movePacmanRight(pacmanPosition)
             break
     }
 })
@@ -161,6 +193,9 @@ gameGrid.appendChild(clyde)
 
 clyde.style.gridColumnStart = `${levelData.clydeStart[0]+1}`
 clyde.style.gridRowStart = `${levelData.clydeStart[1]+1}`
+
+
+//functions
 
 
 // game loop
