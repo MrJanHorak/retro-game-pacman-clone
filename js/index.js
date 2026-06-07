@@ -37,48 +37,45 @@ const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
 }
 
 const movePacmanRight = (pacmanPosition) => {
-    console.log('move pacman right')   
-    console.log('pacman position before: ', pacmanPosition)
     pacmanPosition[0] += 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[0] -= 1
         return
     }
-    console.log('pacman position after: ', pacmanPosition)
+    pacman.style.backgroundImage = 'url(../assets/characterSprites/pacman/pacman_right.svg )'
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
-    console.log(' paceman postion after style change: ', pacmanPosition)
 }
 
 const movePacmanLeft = (pacmanPosition) => {
-    console.log('move pacman left')    
     pacmanPosition[0] -= 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[0] += 1
         return
     }
+    pacman.style.backgroundImage = 'url(../assets/characterSprites/pacman/pacman_left.svg )'
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
 }
 
-const movePacmanUp = (pacmanPosition) => {
-    console.log('move pacman up')    
+const movePacmanUp = (pacmanPosition) => { 
     pacmanPosition[1] -= 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[1] += 1
         return
     }
+    pacman.style.backgroundImage = 'url(../assets/characterSprites/pacman/pacman_up.svg )'
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
 }
 
 const movePacmanDown = (pacmanPosition) => {
-    console.log('move pacman down')    
     pacmanPosition[1] += 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[1] -= 1
         return
     }
+    pacman.style.backgroundImage = 'url(../assets/characterSprites/pacman/pacman_down.svg )'
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
 }
@@ -150,31 +147,7 @@ bonusEl.textContent = `Bonus: ${bonus}`
 bottomInfoBar.appendChild(bonusEl)
 
 // event listeners (for keyboard input, buttons, etc.)
-// event listeners for WASD and arrow keys for player movement
-document.addEventListener('keydown', (event) => {
-    switch(event.key) {
-        case 'ArrowUp':
-        case 'w':
-        case 'W':
-            movePacmanUp(pacmanPosition)
-            break
-        case 'ArrowDown':
-        case 's':
-        case 'S':
-            movePacmanDown(pacmanPosition)
-            break
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-            movePacmanLeft(pacmanPosition)
-            break
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-            movePacmanRight(pacmanPosition)
-            break
-    }
-})
+
 
 // event listeners for start button (space), restart button (ESC), etc.
 
@@ -221,6 +194,30 @@ clyde.style.gridRowStart = `${levelData.clydeStart[1]+1}`
 
 
 //functions
-
+// event listeners for WASD and arrow keys for player movement
+document.addEventListener('keydown', (event) => {
+    switch(event.key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+            movePacmanUp(pacmanPosition)
+            break
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+            movePacmanDown(pacmanPosition)
+            break
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+            movePacmanLeft(pacmanPosition)
+            break
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+            movePacmanRight(pacmanPosition)
+            break
+    }
+})
 
 // game loop
