@@ -346,3 +346,21 @@ textarea {
   background-size: 200%;
   /* background-color: orange; */
 } 
+
+.pellet {
+  width: 20%;
+  height: 20%;
+  background-color: white;
+  border-radius: 50%;
+  justify-self: center;
+  align-self: center;
+}
+
+.power-pellet {
+  width: 55%;
+  height: 55%;
+  background-color: white;
+  border-radius: 50%;
+  justify-self: center;
+  align-self: center;
+}

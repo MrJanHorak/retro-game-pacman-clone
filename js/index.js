@@ -8,8 +8,8 @@ console.log('levelsData: ', levelsData)
 
 // initial variables for game state
 let score = 0, highScore = 0, lives = 0
-let gameOver, gameStarted, level, player, bonus, levelData, gameGridData, cruiseElroyTrigger
-let pacmanPosition, blinkyPosition, pinkyPosition, inkyPosition, clydePosition, bonusPosition, pacmanDirection
+let gameOver, gameStarted, level, player, bonus, levelData, pelletCount, ghostCount
+let gameGridData, cruiseElroyTrigger, pacmanPosition, blinkyPosition, pinkyPosition, inkyPosition, clydePosition, bonusPosition, pacmanDirection
 
 levelData = levelsData.level1
 gameGridData = levelData.gameGrid
@@ -34,6 +34,38 @@ const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
         return true
     }
 }
+
+const updateScore = () => {
+    console.log('score updated: ', score)
+    scoreOneEl.textContent = `${score}`
+    if(score > highScore) {
+        highScore = score
+        highScoreEl.textContent = `${highScore}`
+    }
+}
+
+const chompPellet = (pacmanPosition) => {
+    if(gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 80) {
+        console.log('pellet collected')
+        gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0
+        const pelletEl = document.querySelector(`.pellet[style="grid-column-start: ${pacmanPosition[0]+1}; grid-row-start: ${pacmanPosition[1]+1};"]`).classList.remove('pellet')
+        pelletCount += 1
+        score += 10
+        updateScore()
+    }
+}
+
+const chompPowerPellet = (pacmanPosition) => {
+    if(gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 81) {
+        console.log('power pellet collected')
+        gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0
+        const powerPelletEl = document.querySelector(`.power-pellet[style="grid-column-start: ${pacmanPosition[0]+1}; grid-row-start: ${pacmanPosition[1]+1};"]`).classList.remove('power-pellet')
+        pelletCount += 1
+        score += 50
+        updateScore()
+        // set ghosts to frightened mode for a limited time
+    }
+}   
 
 const movePacmanRight = (pacmanPosition) => {
     // checkTunnelWrapAround(pacmanPosition)
@@ -168,6 +200,27 @@ bonusEl.classList.add('bonus')
 bonusEl.textContent = `Bonus: ${bonus}`
 bottomInfoBar.appendChild(bonusEl)
 
+levelsData.level1.gameGrid.forEach((row, rowIndex) => {
+    row.forEach((cell, cellIndex) => {
+        if(cell === 80) {
+        const cellEl = document.createElement('div')
+        cellEl.classList.add('pellet')
+        cellEl.style.gridColumnStart = `${cellIndex+1}`
+        cellEl.style.gridRowStart = `${rowIndex+1}`
+        gameGrid.appendChild(cellEl)
+        }
+        if(cell === 81) {
+        const cellEl = document.createElement('div')
+        cellEl.classList.add('power-pellet')
+        cellEl.style.gridColumnStart = `${cellIndex+1}`
+        cellEl.style.gridRowStart = `${rowIndex+1}`
+        gameGrid.appendChild(cellEl)
+        }
+    })
+})
+
+
+
 // event listeners (for keyboard input, buttons, etc.)
 
 
@@ -224,6 +277,8 @@ document.addEventListener('keydown', (event) => {
             pacmanDirection = 'up'
             checkTunnelWrapAround(pacmanPosition)
             movePacmanUp(pacmanPosition)
+            chompPellet(pacmanPosition)
+            chompPowerPellet(pacmanPosition)
             break
         case 'ArrowDown':
         case 's':
@@ -231,6 +286,8 @@ document.addEventListener('keydown', (event) => {
             pacmanDirection = 'down'
             checkTunnelWrapAround(pacmanPosition)
             movePacmanDown(pacmanPosition)
+            chompPellet(pacmanPosition)
+            chompPowerPellet(pacmanPosition)
             break
         case 'ArrowLeft':
         case 'a':
@@ -238,6 +295,8 @@ document.addEventListener('keydown', (event) => {
             pacmanDirection = 'left'
             checkTunnelWrapAround(pacmanPosition)
             movePacmanLeft(pacmanPosition)
+            chompPellet(pacmanPosition)
+            chompPowerPellet(pacmanPosition)
             break
         case 'ArrowRight':
         case 'd':
@@ -245,8 +304,37 @@ document.addEventListener('keydown', (event) => {
             pacmanDirection = 'right'
             checkTunnelWrapAround(pacmanPosition)
             movePacmanRight(pacmanPosition)
+            chompPellet(pacmanPosition)
+            chompPowerPellet(pacmanPosition)
             break
     }
 })
 
 // game loop
+pelletCount = 0
+ghostCount = 0
+gameOver = false
+score = 0
+highScore = 0
+
+const gameLoop = () => {
+    if(pacmanDirection === 'right') {
+        movePacmanRight(pacmanPosition)
+    } else if (pacmanDirection === 'left') {
+        movePacmanLeft(pacmanPosition)
+    } else if (pacmanDirection === 'up') {
+        movePacmanUp(pacmanPosition)
+    } else if (pacmanDirection === 'down') {
+        movePacmanDown(pacmanPosition)
+    }
+    // check for pellet collection
+    // check for ghost collision
+    // check for bonus collection
+    // update score, lives, and other game state variables as needed
+    // render updated game state to the DOM
+   
+}
+
+// while (!gameOver) {
+    gameLoop()
+// }
