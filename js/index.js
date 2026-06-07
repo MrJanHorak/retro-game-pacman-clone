@@ -9,7 +9,7 @@ console.log('levelsData: ', levelsData)
 // initial variables for game state
 let score = 0, highScore = 0, lives = 0
 let gameOver, gameStarted, level, player, bonus, levelData, gameGridData, cruiseElroyTrigger
-let pacmanPosition, blinkyPosition, pinkyPosition, inkyPosition, clydePosition, bonusPosition
+let pacmanPosition, blinkyPosition, pinkyPosition, inkyPosition, clydePosition, bonusPosition, pacmanDirection
 
 levelData = levelsData.level1
 gameGridData = levelData.gameGrid
@@ -33,10 +33,10 @@ const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
         console.log('wall collision detected')
         return true
     }
-
 }
 
 const movePacmanRight = (pacmanPosition) => {
+    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[0] += 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[0] -= 1
@@ -48,6 +48,7 @@ const movePacmanRight = (pacmanPosition) => {
 }
 
 const movePacmanLeft = (pacmanPosition) => {
+    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[0] -= 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[0] += 1
@@ -59,6 +60,7 @@ const movePacmanLeft = (pacmanPosition) => {
 }
 
 const movePacmanUp = (pacmanPosition) => { 
+    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[1] -= 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[1] += 1
@@ -70,6 +72,7 @@ const movePacmanUp = (pacmanPosition) => {
 }
 
 const movePacmanDown = (pacmanPosition) => {
+    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[1] += 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[1] -= 1
@@ -78,6 +81,25 @@ const movePacmanDown = (pacmanPosition) => {
     pacman.style.backgroundImage = 'url(../assets/characterSprites/pacman/pacman_down.svg )'
     pacman.style.gridColumnStart = `${pacmanPosition[0]+1}`
     pacman.style.gridRowStart = `${pacmanPosition[1]+1}`
+}
+
+// check of moving through tunnels and wrap around to the other side of the grid
+// the game grid is 28 columns wide, so if pacman moves left from column 0, he should appear in column 27, and vice versa
+// the game grid is 31 rows high, so if pacman moves up from row 0, he should appear in row 30, and vice versa
+
+const checkTunnelWrapAround = (pacmanPosition) => {
+    console.log('pacman position before tunnel check: ', pacmanPosition)
+    if (pacmanPosition[0] <= 0 && pacmanDirection === 'left') {
+        pacmanPosition[0] = 28
+    } else if (pacmanPosition[0] >= 27 && pacmanDirection === 'right') {
+        pacmanPosition[0] = -1
+    }
+
+    if (pacmanPosition[1] === 0 && pacmanDirection === 'up') {
+        pacmanPosition[1] = 31
+    } else if (pacmanPosition[1] === 30 && pacmanDirection === 'down') {
+        pacmanPosition[1] = -1
+    }
 }
 
 // Cached DOM elements
@@ -193,28 +215,35 @@ clyde.style.gridColumnStart = `${levelData.clydeStart[0]+1}`
 clyde.style.gridRowStart = `${levelData.clydeStart[1]+1}`
 
 
-//functions
 // event listeners for WASD and arrow keys for player movement
 document.addEventListener('keydown', (event) => {
     switch(event.key) {
         case 'ArrowUp':
         case 'w':
         case 'W':
+            pacmanDirection = 'up'
+            checkTunnelWrapAround(pacmanPosition)
             movePacmanUp(pacmanPosition)
             break
         case 'ArrowDown':
         case 's':
         case 'S':
+            pacmanDirection = 'down'
+            checkTunnelWrapAround(pacmanPosition)
             movePacmanDown(pacmanPosition)
             break
         case 'ArrowLeft':
         case 'a':
         case 'A':
+            pacmanDirection = 'left'
+            checkTunnelWrapAround(pacmanPosition)
             movePacmanLeft(pacmanPosition)
             break
         case 'ArrowRight':
         case 'd':
         case 'D':
+            pacmanDirection = 'right'
+            checkTunnelWrapAround(pacmanPosition)
             movePacmanRight(pacmanPosition)
             break
     }
