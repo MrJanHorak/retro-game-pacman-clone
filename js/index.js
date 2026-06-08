@@ -1,15 +1,13 @@
 // import of game assests (sounds, images, etc. if needed)
 import { levelsData } from '../data/levels.js'
-
-// imports of game functions
-// import classes (Player, Ghost, etc.)
-
 console.log('levelsData: ', levelsData)
 
 // initial variables for game state
 let score = 0, highScore = 0, lives = 0
 let gameOver, gameStarted, level, player, bonus, levelData, pelletCount, ghostCount, distanceUp, distanceDown, distanceLeft, distanceRight
 let gameGridData, cruiseElroyTrigger, pacmanPosition, blinkyPosition, pinkyPosition, inkyPosition, clydePosition, bonusPosition, pacmanDirection
+let blinkyDirection, pinkyDirection, inkyDirection, clydeDirection
+let blinkyDirectionLast, pinkyDirectionLast, inkyDirectionLast, clydeDirectionLast
 
 levelData = levelsData.level1
 gameGridData = levelData.gameGrid
@@ -114,7 +112,6 @@ const chompPowerPellet = (pacmanPosition) => {
 }   
 
 const movePacmanRight = (pacmanPosition) => {
-    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[0] += 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[0] -= 1
@@ -126,7 +123,6 @@ const movePacmanRight = (pacmanPosition) => {
 }
 
 const movePacmanLeft = (pacmanPosition) => {
-    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[0] -= 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[0] += 1
@@ -138,7 +134,6 @@ const movePacmanLeft = (pacmanPosition) => {
 }
 
 const movePacmanUp = (pacmanPosition) => { 
-    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[1] -= 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[1] += 1
@@ -150,7 +145,6 @@ const movePacmanUp = (pacmanPosition) => {
 }
 
 const movePacmanDown = (pacmanPosition) => {
-    // checkTunnelWrapAround(pacmanPosition)
     pacmanPosition[1] += 1
     if(playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
         pacmanPosition[1] -= 1
@@ -166,7 +160,6 @@ const movePacmanDown = (pacmanPosition) => {
 // the game grid is 31 rows high, so if pacman moves up from row 0, he should appear in row 30, and vice versa
 
 const checkTunnelWrapAround = (pacmanPosition) => {
-    console.log('pacman position before tunnel check: ', pacmanPosition)
     if (pacmanPosition[0] <= 0 && pacmanDirection === 'left') {
         pacmanPosition[0] = 28
     } else if (pacmanPosition[0] >= 27 && pacmanDirection === 'right') {
@@ -180,13 +173,29 @@ const checkTunnelWrapAround = (pacmanPosition) => {
     }
 }
 
-const calculateGhostPacmanDistance = (ghostPosition, pacmanPosition) => {
-    const distance = (Math.pow(ghostPosition[0] - pacmanPosition[0], 2) + Math.pow(ghostPosition[1] - pacmanPosition[1], 2))
+
+// Begin atempt at Ghost chase logic. Ghosts will check each direction they can move (not a wall) and 
+// calculate the distance from pacman if they were to move in that direction, then move in the direction 
+// that results in the shortest distance to pacman. 
+// 
+// Each ghost will have a different target cell that they are trying to get to 
+// (blinky targets pacman's current position, 
+// pinky targets the cell 4 spaces ahead of pacman in the direction pacman is currently moving, 
+// inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2, 
+// and clyde targets pacman if clyde is more than 8 spaces away from pacman, but if clyde is within 8 spaces 
+// of pacman, clyde targets his scatter corner (bottom left corner of the grid))
+
+const calculateGhostPacmanDistance = (ghostPosition, ghostTargetCell) => {
+    console.log('calculating distance from ghost to pacman')
+    console.log('ghost position: ', ghostPosition)
+    console.log('ghost target cell: ', ghostTargetCell)
+    const distance = (Math.pow(ghostPosition[0] - ghostTargetCell[0], 2) + Math.pow(ghostPosition[1] - ghostTargetCell[1], 2))
     return distance
 }
 
-const determineShortestDistance= (distanceLeft, distanceUp, distanceRight, distanceDown) => {
+const determineShortestDistance= (distanceUp, distanceLeft, distanceRight, distanceDown, ghostDirectionLast) => {
     const minDistance = Math.min(distanceUp, distanceLeft,  distanceDown, distanceRight)
+    console.log('min distance: ', minDistance)
     switch(minDistance) {
         case distanceUp:
             return 'up'
@@ -199,34 +208,42 @@ const determineShortestDistance= (distanceLeft, distanceUp, distanceRight, dista
     }
 }
 
-const moveGhost = (ghostPosition,  ghostTargetCell) => {
+const moveGhost = (ghostPosition,  ghostTargetCell, ghostDirectionLast) => {
     //check each direction of the ghost postition and see if it is not a wall, then calculate the distance from pacman if the ghost were to move in that direction, then move the ghost in the direction that results in the shortest distance to pacman
-    if(playerWallColisionDetection(ghostPosition[0], ghostPosition[1]-1)) {
-        const distanceUp = calculateGhostPacmanDistance([ghostPosition[0], ghostPosition[1]-1], ghostTargetCell)
+    if(!playerWallColisionDetection(ghostPosition[0], ghostPosition[1]-1) && ghostDirectionLast !== 'down') {
+        distanceUp = calculateGhostPacmanDistance([ghostPosition[0], ghostPosition[1]-1], ghostTargetCell)
     } else {
         distanceUp = Infinity
     }
-     if(playerWallColisionDetection(ghostPosition[0]-1, ghostPosition[1])) {
-        const distanceLeft = calculateGhostPacmanDistance([ghostPosition[0]-1, ghostPosition[1]], ghostTargetCell)
+    if(!playerWallColisionDetection(ghostPosition[0]-1, ghostPosition[1]) && ghostDirectionLast !== 'right') {
+        distanceLeft = calculateGhostPacmanDistance([ghostPosition[0]-1, ghostPosition[1]], ghostTargetCell)
     } else {
         distanceLeft = Infinity
     }
-     if(playerWallColisionDetection(ghostPosition[0], ghostPosition[1]+1)) {
-        const distanceDown = calculateGhostPacmanDistance([ghostPosition[0], ghostPosition[1]+1], ghostTargetCell)
+    if(!playerWallColisionDetection(ghostPosition[0], ghostPosition[1]+1) && ghostDirectionLast !== 'up') {
+        distanceDown = calculateGhostPacmanDistance([ghostPosition[0], ghostPosition[1]+1], ghostTargetCell)
     } else {
         distanceDown = Infinity
     }
-     if(playerWallColisionDetection(ghostPosition[0]+1, ghostPosition[1])) {
-        const distanceRight = calculateGhostPacmanDistance([ghostPosition[0]+1, ghostPosition[1]], ghostTargetCell)
+    if(!playerWallColisionDetection(ghostPosition[0]+1, ghostPosition[1]) && ghostDirectionLast !== 'left') {
+        distanceRight = calculateGhostPacmanDistance([ghostPosition[0]+1, ghostPosition[1]], ghostTargetCell)
     } else {
         distanceRight = Infinity
     } 
-    return determineShortestDistance(distanceLeft, distanceUp, distanceRight, distanceDown)
+    console.log('distance up: ', distanceUp)
+    console.log('distance left: ', distanceLeft)
+    console.log('distance down: ', distanceDown)
+    console.log('distance right: ', distanceRight)
+    console.log('ghost direction last: ', ghostDirectionLast)
+    return determineShortestDistance(distanceUp, distanceLeft, distanceRight, distanceDown, ghostDirectionLast)
 }
 
 const moveBlinky = () => {
     console.log('moving blinky')
-    const blinkyDirection = moveGhost(blinkyPosition, pacmanPosition)
+    if(blinkyDirection !== Infinity || blinkyDirection !== undefined) {
+    blinkyDirectionLast = blinkyDirection
+    }
+    blinkyDirection = moveGhost(blinkyPosition, pacmanPosition, blinkyDirectionLast)
     console.log('blinky direction: ', blinkyDirection)
      switch(blinkyDirection) {
         case 'up':
