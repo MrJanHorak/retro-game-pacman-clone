@@ -26,6 +26,41 @@ bonus = levelData.bonusInfo.type
 
 
 // functions
+const gameLoop = () => {
+    if(pacmanDirection === 'right') {
+        checkTunnelWrapAround(pacmanPosition)
+        movePacmanRight(pacmanPosition)
+        chompPellet(pacmanPosition)
+        chompPowerPellet(pacmanPosition)
+    } else if (pacmanDirection === 'left') {
+        checkTunnelWrapAround(pacmanPosition)
+        movePacmanLeft(pacmanPosition)
+        chompPellet(pacmanPosition)
+        chompPowerPellet(pacmanPosition)
+    } else if (pacmanDirection === 'up') {
+        checkTunnelWrapAround(pacmanPosition)
+        movePacmanUp(pacmanPosition)
+        chompPellet(pacmanPosition)
+        chompPowerPellet(pacmanPosition)
+    } else if (pacmanDirection === 'down') {
+        checkTunnelWrapAround(pacmanPosition)
+        movePacmanDown(pacmanPosition)
+        chompPellet(pacmanPosition)
+        chompPowerPellet(pacmanPosition)
+    }
+    // check for pellet collection
+    // check for ghost collision
+    // check for bonus collection
+    // update score, lives, and other game state variables as needed
+    // render updated game state to the DOM
+      if (gameOver) {
+        console.log("Game Over!");
+        return; 
+    }
+    
+    setTimeout(gameLoop, 100);
+}
+
 const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
     console.log('checking for wall collision')
     console.log('player position: ', playerPosition0, playerPosition1)
@@ -275,37 +310,21 @@ document.addEventListener('keydown', (event) => {
         case 'w':
         case 'W':
             pacmanDirection = 'up'
-            checkTunnelWrapAround(pacmanPosition)
-            movePacmanUp(pacmanPosition)
-            chompPellet(pacmanPosition)
-            chompPowerPellet(pacmanPosition)
             break
         case 'ArrowDown':
         case 's':
         case 'S':
             pacmanDirection = 'down'
-            checkTunnelWrapAround(pacmanPosition)
-            movePacmanDown(pacmanPosition)
-            chompPellet(pacmanPosition)
-            chompPowerPellet(pacmanPosition)
             break
         case 'ArrowLeft':
         case 'a':
         case 'A':
             pacmanDirection = 'left'
-            checkTunnelWrapAround(pacmanPosition)
-            movePacmanLeft(pacmanPosition)
-            chompPellet(pacmanPosition)
-            chompPowerPellet(pacmanPosition)
             break
         case 'ArrowRight':
         case 'd':
         case 'D':
             pacmanDirection = 'right'
-            checkTunnelWrapAround(pacmanPosition)
-            movePacmanRight(pacmanPosition)
-            chompPellet(pacmanPosition)
-            chompPowerPellet(pacmanPosition)
             break
     }
 })
@@ -316,25 +335,8 @@ ghostCount = 0
 gameOver = false
 score = 0
 highScore = 0
+pacmanDirection = 'right'
 
-const gameLoop = () => {
-    if(pacmanDirection === 'right') {
-        movePacmanRight(pacmanPosition)
-    } else if (pacmanDirection === 'left') {
-        movePacmanLeft(pacmanPosition)
-    } else if (pacmanDirection === 'up') {
-        movePacmanUp(pacmanPosition)
-    } else if (pacmanDirection === 'down') {
-        movePacmanDown(pacmanPosition)
-    }
-    // check for pellet collection
-    // check for ghost collision
-    // check for bonus collection
-    // update score, lives, and other game state variables as needed
-    // render updated game state to the DOM
-   
-}
 
-// while (!gameOver) {
-    gameLoop()
-// }
+
+gameLoop()
