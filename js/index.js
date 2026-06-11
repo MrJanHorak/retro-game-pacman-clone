@@ -107,7 +107,6 @@ const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
 };
 
 const updateScore = () => {
-  console.log('score updated: ', score);
   scoreOneEl.textContent = `${score}`;
   if (score > highScore) {
     highScore = score;
@@ -117,7 +116,6 @@ const updateScore = () => {
 
 const chompPellet = (pacmanPosition) => {
   if (gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 80) {
-    console.log('pellet collected');
     gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0;
     const pelletEl = document
       .querySelector(
@@ -232,9 +230,6 @@ const checkTunnelWrapAround = (pacmanPosition) => {
 // of pacman, clyde targets his scatter corner (bottom left corner of the grid))
 
 const calculateGhostPacmanDistance = (ghostPosition, ghostTargetCell) => {
-  console.log('calculating distance from ghost to pacman');
-  console.log('ghost position: ', ghostPosition);
-  console.log('ghost target cell: ', ghostTargetCell);
   const distance =
     Math.pow(ghostPosition[0] - ghostTargetCell[0], 2) +
     Math.pow(ghostPosition[1] - ghostTargetCell[1], 2);
@@ -254,7 +249,7 @@ const determineShortestDistance = (
     distanceDown,
     distanceRight,
   );
-  console.log('min distance: ', minDistance);
+
   switch (minDistance) {
     case distanceUp:
       return 'up';
@@ -270,13 +265,12 @@ const determineShortestDistance = (
 const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   //check each direction of the ghost postition and see if it is not a wall, then calculate the distance from pacman if the ghost were to move in that direction, then move the ghost in the direction that results in the shortest distance to pacman
   if (gameGridData[ghostPosition[0]][ghostPosition[1] - 1] === 9) {
-    console.log(True)
+    console.log(True);
     distanceUp = calculateGhostPacmanDistance(
       [ghostPosition[0], ghostPosition[1] - 1],
       ghostTargetCell,
     );
-    // break
-  }
+  }else {
   if (
     !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
     ghostDirectionLast !== 'down'
@@ -321,11 +315,8 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   } else {
     distanceRight = Infinity;
   }
-  console.log('distance up: ', distanceUp);
-  console.log('distance left: ', distanceLeft);
-  console.log('distance down: ', distanceDown);
-  console.log('distance right: ', distanceRight);
-  console.log('ghost direction last: ', ghostDirectionLast);
+}
+
   return determineShortestDistance(
     distanceUp,
     distanceLeft,
@@ -381,7 +372,7 @@ const movePinky = () => {
   }
   const pinkyDirection = moveGhost(pinkyPosition, pinkyTargetCell);
 
-    switch (pinkyDirection) {
+  switch (pinkyDirection) {
     case 'up':
       pinkyPosition[1] -= 1;
       break;
@@ -395,10 +386,9 @@ const movePinky = () => {
       pinkyPosition[0] += 1;
       break;
   }
-  console.log('moving PINKY: ', pinkyDirection);
   pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
   pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-}
+};
 
 const moveInky = () => {
   // inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2 (so basically if blinky is at (5,5) and the cell 2 spaces ahead of pacman is (10,10), inky targets the cell (15,15))
