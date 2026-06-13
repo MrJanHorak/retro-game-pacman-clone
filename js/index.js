@@ -26,7 +26,8 @@ let gameGridData,
   inkyPosition,
   clydePosition,
   bonusPosition,
-  pacmanDirection;
+  pacmanDirection,
+  ghostStartPosition;
 let blinkyDirection, pinkyDirection, inkyDirection, clydeDirection;
 let blinkyDirectionLast,
   pinkyDirectionLast,
@@ -40,6 +41,7 @@ lives = levelData.lives;
 
 pacmanPosition = levelData.playerStart;
 blinkyPosition = levelData.blinkyStart;
+ghostStartPosition = levelData.blinkyStart;
 pinkyPosition = levelData.pinkyStart;
 inkyPosition = levelData.inkyStart;
 clydePosition = levelData.clydeStart;
@@ -262,60 +264,64 @@ const determineShortestDistance = (
   }
 };
 
+const ghostInBounds = (ghostPosition) => {
+  if (ghostPosition[0] >= 0 && ghostPosition[0] <= 27) {
+    return true;
+  }
+};
+
 const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   //check each direction of the ghost postition and see if it is not a wall, then calculate the distance from pacman if the ghost were to move in that direction, then move the ghost in the direction that results in the shortest distance to pacman
   if (gameGridData[ghostPosition[0]][ghostPosition[1] - 1] === 9) {
-    console.log(True);
-    distanceUp = calculateGhostPacmanDistance(
-      [ghostPosition[0], ghostPosition[1] - 1],
-      ghostTargetCell,
-    );
-  }else {
-  if (
-    !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
-    ghostDirectionLast !== 'down'
-  ) {
-    distanceUp = calculateGhostPacmanDistance(
-      [ghostPosition[0], ghostPosition[1] - 1],
-      ghostTargetCell,
-    );
+    console.log('True');
+    ghostPosition = levelData.blinkyStart;
   } else {
-    distanceUp = Infinity;
+    if (
+      !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
+      ghostDirectionLast !== 'down'
+    ) {
+      distanceUp = calculateGhostPacmanDistance(
+        [ghostPosition[0], ghostPosition[1] - 1],
+        ghostTargetCell,
+      );
+    } else {
+      distanceUp = Infinity;
+    }
+    if (
+      ghostInBounds([ghostPosition[0] - 1, ghostPosition[1]]) &&
+      !playerWallColisionDetection(ghostPosition[0] - 1, ghostPosition[1]) &&
+      ghostDirectionLast !== 'right'
+    ) {
+      distanceLeft = calculateGhostPacmanDistance(
+        [ghostPosition[0] - 1, ghostPosition[1]],
+        ghostTargetCell,
+      );
+    } else {
+      distanceLeft = Infinity;
+    }
+    if (
+      !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] + 1) &&
+      ghostDirectionLast !== 'up'
+    ) {
+      distanceDown = calculateGhostPacmanDistance(
+        [ghostPosition[0], ghostPosition[1] + 1],
+        ghostTargetCell,
+      );
+    } else {
+      distanceDown = Infinity;
+    }
+    if (
+      !playerWallColisionDetection(ghostPosition[0] + 1, ghostPosition[1]) &&
+      ghostDirectionLast !== 'left'
+    ) {
+      distanceRight = calculateGhostPacmanDistance(
+        [ghostPosition[0] + 1, ghostPosition[1]],
+        ghostTargetCell,
+      );
+    } else {
+      distanceRight = Infinity;
+    }
   }
-  if (
-    !playerWallColisionDetection(ghostPosition[0] - 1, ghostPosition[1]) &&
-    ghostDirectionLast !== 'right'
-  ) {
-    distanceLeft = calculateGhostPacmanDistance(
-      [ghostPosition[0] - 1, ghostPosition[1]],
-      ghostTargetCell,
-    );
-  } else {
-    distanceLeft = Infinity;
-  }
-  if (
-    !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] + 1) &&
-    ghostDirectionLast !== 'up'
-  ) {
-    distanceDown = calculateGhostPacmanDistance(
-      [ghostPosition[0], ghostPosition[1] + 1],
-      ghostTargetCell,
-    );
-  } else {
-    distanceDown = Infinity;
-  }
-  if (
-    !playerWallColisionDetection(ghostPosition[0] + 1, ghostPosition[1]) &&
-    ghostDirectionLast !== 'left'
-  ) {
-    distanceRight = calculateGhostPacmanDistance(
-      [ghostPosition[0] + 1, ghostPosition[1]],
-      ghostTargetCell,
-    );
-  } else {
-    distanceRight = Infinity;
-  }
-}
 
   return determineShortestDistance(
     distanceUp,
@@ -355,41 +361,57 @@ const moveBlinky = () => {
 
 const movePinky = () => {
   // pinky targets the cell 4 spaces ahead of pacman in the direction pacman is currently moving
-  let pinkyTargetCell;
-  switch (pacmanDirection) {
-    case 'up':
-      pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] - 4];
-      break;
-    case 'down':
-      pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] + 4];
-      break;
-    case 'left':
-      pinkyTargetCell = [pacmanPosition[0] - 4, pacmanPosition[1]];
-      break;
-    case 'right':
-      pinkyTargetCell = [pacmanPosition[0] + 4, pacmanPosition[1]];
-      break;
-  }
-  const pinkyDirection = moveGhost(pinkyPosition, pinkyTargetCell);
+  
+    let pinkyTargetCell;
 
-  switch (pinkyDirection) {
-    case 'up':
-      pinkyPosition[1] -= 1;
-      break;
-    case 'down':
-      pinkyPosition[1] += 1;
-      break;
-    case 'left':
-      pinkyPosition[0] -= 1;
-      break;
-    case 'right':
-      pinkyPosition[0] += 1;
-      break;
-  }
-  pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
-  pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
+    if (pinkyDirection !== Infinity || pinkyDirection !== undefined) {
+      pinkyDirectionLast = pinkyDirection;
+    }
+
+    switch (pacmanDirection) {
+      case 'up':
+        pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] - 4];
+        break;
+      case 'down':
+        pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] + 4];
+        break;
+      case 'left':
+        pinkyTargetCell = [pacmanPosition[0] - 4, pacmanPosition[1]];
+        break;
+      case 'right':
+        pinkyTargetCell = [pacmanPosition[0] + 4, pacmanPosition[1]];
+        break;
+    }
+
+    pinkyDirection = moveGhost(
+      pinkyPosition,
+      pinkyTargetCell,
+      pinkyDirectionLast,
+    );
+
+    switch (pinkyDirection) {
+      case 'up':
+        // console.log('pinky up')
+        pinkyPosition[1] -= 1;
+        break;
+      case 'down':
+        // console.log('pinky down')
+        pinkyPosition[1] += 1;
+        break;
+      case 'left':
+        // console.log('pinky left')
+        pinkyPosition[0] -= 1;
+        break;
+      case 'right':
+        // console.log('pinky right')
+        pinkyPosition[0] += 1;
+        break;
+    }
+
+    pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+    pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
+  
 };
-
 const moveInky = () => {
   // inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2 (so basically if blinky is at (5,5) and the cell 2 spaces ahead of pacman is (10,10), inky targets the cell (15,15))
   let inkyTargetCell;
