@@ -274,7 +274,10 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   //check each direction of the ghost postition and see if it is not a wall, then calculate the distance from pacman if the ghost were to move in that direction, then move the ghost in the direction that results in the shortest distance to pacman
   if (gameGridData[ghostPosition[0]][ghostPosition[1] - 1] === 9) {
     console.log('True');
-    ghostPosition = levelData.blinkyStart;
+    distanceUp = levelData.blinkyStart;
+    distanceDown = Infinity;
+    distanceLeft = Infinity;
+    distanceRight = Infinity;
   } else {
     if (
       !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
@@ -361,56 +364,63 @@ const moveBlinky = () => {
 
 const movePinky = () => {
   // pinky targets the cell 4 spaces ahead of pacman in the direction pacman is currently moving
-  
-    let pinkyTargetCell;
 
-    if (pinkyDirection !== Infinity || pinkyDirection !== undefined) {
-      pinkyDirectionLast = pinkyDirection;
-    }
+  let pinkyTargetCell;
 
-    switch (pacmanDirection) {
-      case 'up':
-        pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] - 4];
-        break;
-      case 'down':
-        pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] + 4];
-        break;
-      case 'left':
-        pinkyTargetCell = [pacmanPosition[0] - 4, pacmanPosition[1]];
-        break;
-      case 'right':
-        pinkyTargetCell = [pacmanPosition[0] + 4, pacmanPosition[1]];
-        break;
-    }
+  if (pinkyDirection !== Infinity || pinkyDirection !== undefined) {
+    pinkyDirectionLast = pinkyDirection;
+  }
 
-    pinkyDirection = moveGhost(
-      pinkyPosition,
-      pinkyTargetCell,
-      pinkyDirectionLast,
-    );
-
-    switch (pinkyDirection) {
-      case 'up':
-        // console.log('pinky up')
-        pinkyPosition[1] -= 1;
-        break;
-      case 'down':
-        // console.log('pinky down')
-        pinkyPosition[1] += 1;
-        break;
-      case 'left':
-        // console.log('pinky left')
-        pinkyPosition[0] -= 1;
-        break;
-      case 'right':
-        // console.log('pinky right')
-        pinkyPosition[0] += 1;
-        break;
-    }
-
+  if (gameGridData[pinkyPosition[0]][pinkyPosition[1] - 1] === 9) {
+    console.log('True');
+    pinkyPosition = levelData.blinkyStart;
     pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
     pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-  
+    return
+  }
+
+  switch (pacmanDirection) {
+    case 'up':
+      pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] - 4];
+      break;
+    case 'down':
+      pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] + 4];
+      break;
+    case 'left':
+      pinkyTargetCell = [pacmanPosition[0] - 4, pacmanPosition[1]];
+      break;
+    case 'right':
+      pinkyTargetCell = [pacmanPosition[0] + 4, pacmanPosition[1]];
+      break;
+  }
+
+  pinkyDirection = moveGhost(
+    pinkyPosition,
+    pinkyTargetCell,
+    pinkyDirectionLast,
+  );
+
+  switch (pinkyDirection) {
+    case 'up':
+      // console.log('pinky up')
+      pinkyPosition[1] -= 1;
+      break;
+    case 'down':
+      // console.log('pinky down')
+      pinkyPosition[1] += 1;
+      break;
+    case 'left':
+      // console.log('pinky left')
+      pinkyPosition[0] -= 1;
+      break;
+    case 'right':
+      // console.log('pinky right')
+      pinkyPosition[0] += 1;
+      break;
+  }
+
+  pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+  pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
 };
 const moveInky = () => {
   // inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2 (so basically if blinky is at (5,5) and the cell 2 spaces ahead of pacman is (10,10), inky targets the cell (15,15))
