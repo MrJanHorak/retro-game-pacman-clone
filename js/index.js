@@ -8,18 +8,19 @@ let gameOver, gameStarted, level, player, bonus, levelData, pelletCount, ghostCo
 let gameGridData, cruiseElroyTrigger, pacmanPosition, blinkyPosition, pinkyPosition, inkyPosition, clydePosition, bonusPosition, pacmanDirection
 let blinkyDirection, pinkyDirection, inkyDirection, clydeDirection
 let blinkyDirectionLast, pinkyDirectionLast, inkyDirectionLast, clydeDirectionLast
+let pinkyStarted = false, inkyStarted = false, clydeStarted = false
 
 levelData = levelsData.level1
 gameGridData = levelData.gameGrid
 cruiseElroyTrigger = levelData.cruiseElroyTrigger   
 lives = levelData.lives
 
-pacmanPosition = levelData.playerStart
-blinkyPosition = levelData.blinkyStart
-pinkyPosition = levelData.pinkyStart
-inkyPosition = levelData.inkyStart
-clydePosition = levelData.clydeStart
-bonusPosition = levelData.bonusInfo.location
+pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+bonusPosition = JSON.parse(JSON.stringify(levelData.bonusInfo.location));
 bonus = levelData.bonusInfo.type
 
 // functions
@@ -74,13 +75,18 @@ const gameLoop = () => {
 }
 
 const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
-    if(gameGridData[playerPosition1][playerPosition0]>0 && gameGridData[playerPosition1][playerPosition0] <= 53 ) {
+    if(gameGridData[playerPosition1][playerPosition0]>0 &&  gameGridData[playerPosition1][playerPosition0] <= 53 ) {
         return true
     }
 }
 
+const ghostWallColisionDetection = (ghostPosition0, ghostPosition1, direction) => {
+    if(gameGridData[ghostPosition1][ghostPosition0]>0 && gameGridData[ghostPosition1][ghostPosition0] <9 && gameGridData[ghostPosition1][ghostPosition0] > 9 && gameGridData[ghostPosition1][ghostPosition0] < 53) {
+        return true
+    }
+}   
+
 const updateScore = () => {
-    console.log('score updated: ', score)
     scoreOneEl.textContent = `${score}`
     if(score > highScore) {
         highScore = score
@@ -90,7 +96,6 @@ const updateScore = () => {
 
 const chompPellet = (pacmanPosition) => {
     if(gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 80) {
-        console.log('pellet collected')
         gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0
         const pelletEl = document.querySelector(`.pellet[style="grid-column-start: ${pacmanPosition[0]+1}; grid-row-start: ${pacmanPosition[1]+1};"]`).classList.remove('pellet')
         pelletCount += 1
@@ -101,7 +106,6 @@ const chompPellet = (pacmanPosition) => {
 
 const chompPowerPellet = (pacmanPosition) => {
     if(gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 81) {
-        console.log('power pellet collected')
         gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0
         const powerPelletEl = document.querySelector(`.power-pellet[style="grid-column-start: ${pacmanPosition[0]+1}; grid-row-start: ${pacmanPosition[1]+1};"]`).classList.remove('power-pellet')
         pelletCount += 1
@@ -186,16 +190,12 @@ const checkTunnelWrapAround = (pacmanPosition) => {
 // of pacman, clyde targets his scatter corner (bottom left corner of the grid))
 
 const calculateGhostPacmanDistance = (ghostPosition, ghostTargetCell) => {
-    console.log('calculating distance from ghost to pacman')
-    console.log('ghost position: ', ghostPosition)
-    console.log('ghost target cell: ', ghostTargetCell)
     const distance = (Math.pow(ghostPosition[0] - ghostTargetCell[0], 2) + Math.pow(ghostPosition[1] - ghostTargetCell[1], 2))
     return distance
 }
 
 const determineShortestDistance= (distanceUp, distanceLeft, distanceRight, distanceDown, ghostDirectionLast) => {
     const minDistance = Math.min(distanceUp, distanceLeft,  distanceDown, distanceRight)
-    console.log('min distance: ', minDistance)
     switch(minDistance) {
         case distanceUp:
             return 'up'
@@ -230,21 +230,14 @@ const moveGhost = (ghostPosition,  ghostTargetCell, ghostDirectionLast) => {
     } else {
         distanceRight = Infinity
     } 
-    console.log('distance up: ', distanceUp)
-    console.log('distance left: ', distanceLeft)
-    console.log('distance down: ', distanceDown)
-    console.log('distance right: ', distanceRight)
-    console.log('ghost direction last: ', ghostDirectionLast)
     return determineShortestDistance(distanceUp, distanceLeft, distanceRight, distanceDown, ghostDirectionLast)
 }
 
 const moveBlinky = () => {
-    console.log('moving blinky')
     if(blinkyDirection !== Infinity || blinkyDirection !== undefined) {
     blinkyDirectionLast = blinkyDirection
     }
     blinkyDirection = moveGhost(blinkyPosition, pacmanPosition, blinkyDirectionLast)
-    console.log('blinky direction: ', blinkyDirection)
      switch(blinkyDirection) {
         case 'up':
             blinkyPosition[1] -= 1
@@ -261,12 +254,22 @@ const moveBlinky = () => {
     }
     blinky.style.gridColumnStart = `${blinkyPosition[0]+1}`
     blinky.style.gridRowStart = `${blinkyPosition[1]+1}`
-    console.log('blinky position: ', blinkyPosition)
 }
 
 const movePinky = () => {
+
+    if (blinkyPosition !== levelData.blinkyStart && !pinkyStarted) {
+        setTimeout(() => {
+        pinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+        pinkyStarted = true
+        }, 2000)
+    }
     // pinky targets the cell 4 spaces ahead of pacman in the direction pacman is currently moving
     let pinkyTargetCell
+    if (pinkyDirection !== Infinity || pinkyDirection !== undefined) {
+        pinkyDirectionLast = pinkyDirection
+    }
+    
     switch(pacmanDirection) {
         case 'up':
             pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1]-4]
@@ -281,8 +284,23 @@ const movePinky = () => {
             pinkyTargetCell = [pacmanPosition[0]+4, pacmanPosition[1]]
             break
     }
-    const blinkyDirection = moveGhost(pinkyPosition, pinkyTargetCell)
-    console.log('blinky direction: ', blinkyDirection)
+    pinkyDirection = moveGhost(pinkyPosition, pinkyTargetCell, pinkyDirectionLast)
+    
+    switch(pinkyDirection) {
+        case 'up':
+            pinkyPosition[1] -= 1
+            break
+        case 'down':
+            pinkyPosition[1] += 1
+            break
+        case 'left':
+            pinkyPosition[0] -= 1
+            break
+        case 'right':
+            pinkyPosition[0] += 1
+            break
+    }
+
     pinky.style.gridColumnStart = `${pinkyPosition[0]+1}`
     pinky.style.gridRowStart = `${pinkyPosition[1]+1}`
 }
@@ -291,6 +309,18 @@ const moveInky = () => {
     // inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2 (so basically if blinky is at (5,5) and the cell 2 spaces ahead of pacman is (10,10), inky targets the cell (15,15))
     let inkyTargetCell
     let cellTwoAhead
+
+    if (blinkyPosition !== levelData.blinkyStart && !inkyStarted) {
+        setTimeout(() => {
+        inkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+        inkyStarted = true
+        }, 4000)
+    }
+
+    if (inkyDirection !== Infinity || inkyDirection !== undefined) {
+        inkyDirectionLast = inkyDirection
+    }
+
     switch(pacmanDirection) {
         case 'up':
             cellTwoAhead = [pacmanPosition[0], pacmanPosition[1]-2]
@@ -306,7 +336,22 @@ const moveInky = () => {
             break
     }
     inkyTargetCell = [cellTwoAhead[0] + (cellTwoAhead[0] - blinkyPosition[0]), cellTwoAhead[1] + (cellTwoAhead[1] - blinkyPosition[1])]
-    moveGhost(inkyPosition, inkyTargetCell)
+    inkyDirection = moveGhost(inkyPosition, inkyTargetCell)
+    switch(inkyDirection) {
+        case 'up':
+            inkyPosition[1] -= 1
+            break
+        case 'down':
+            inkyPosition[1] += 1
+            break
+        case 'left':
+            inkyPosition[0] -= 1
+            break
+        case 'right':
+            inkyPosition[0] += 1
+            break
+    }
+
     inky.style.gridColumnStart = `${inkyPosition[0]+1}`
     inky.style.gridRowStart = `${inkyPosition[1]+1}`
 }
@@ -315,12 +360,38 @@ const moveClyde = () => {
     // clyde targets pacman if clyde is more than 8 spaces away from pacman, but if clyde is within 8 spaces of pacman, clyde targets his scatter corner (bottom left corner of the grid)
     const distanceToPacman = calculateGhostPacmanDistance(clydePosition, pacmanPosition)
     let clydeTargetCell
+    if (clydePosition !== levelData.blinkyStart && !clydeStarted) {
+        setTimeout(() => {
+        clydePosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+        clydeStarted = true
+        }, 6000)
+
+    }
+
+    if (clydeDirection !== Infinity || clydeDirection !== undefined) {
+        clydeDirectionLast = clydeDirection
+    }
+
     if(distanceToPacman > 64) {
         clydeTargetCell = pacmanPosition
     } else {
         clydeTargetCell = [0, 31]
     }
-    moveGhost(clydePosition, clydeTargetCell)
+    clydeDirection = moveGhost(clydePosition, clydeTargetCell, clydeDirectionLast)
+        switch(clydeDirection) {
+        case 'up':
+            clydePosition[1] -= 1
+            break
+        case 'down':
+            clydePosition[1] += 1
+            break
+        case 'left':
+            clydePosition[0] -= 1
+            break
+        case 'right':
+            clydePosition[0] += 1
+            break
+    }
     clyde.style.gridColumnStart = `${clydePosition[0]+1}`
     clyde.style.gridRowStart = `${clydePosition[1]+1}`
 }   
