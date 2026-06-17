@@ -60,12 +60,20 @@ const gameLoop = () => {
     movePacmanRight(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
     moveBlinky();
     movePinky();
     moveInky();
     moveClyde();
   } else if (pacmanDirection === 'left') {
     checkTunnelWrapAround(pacmanPosition);
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
     movePacmanLeft(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -75,6 +83,10 @@ const gameLoop = () => {
     moveClyde();
   } else if (pacmanDirection === 'up') {
     checkTunnelWrapAround(pacmanPosition);
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
     movePacmanUp(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -84,6 +96,10 @@ const gameLoop = () => {
     moveClyde();
   } else if (pacmanDirection === 'down') {
     checkTunnelWrapAround(pacmanPosition);
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde'  );
     movePacmanDown(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -231,6 +247,25 @@ const checkTunnelWrapAround = (pacmanPosition) => {
   }
 };
 
+const checkGhostTunnelReverse = (ghostPosition, ghostDirection, ghostName) => {
+    if (ghostPosition[0] <= 0 && ghostDirection === 'left') {
+        ghostPosition[0] = 0;
+        ghostDirection = 'right';
+    } else if (ghostPosition[0] >= 27 && ghostDirection === 'right') {
+        ghostPosition[0] = 27;
+        ghostDirection = 'left';
+    }
+    if( ghostName === 'blinky') {
+        blinkyDirection = ghostDirection
+    } else if (ghostName === 'pinky') {
+        pinkyDirection = ghostDirection
+    } else if (ghostName === 'inky') {
+        inkyDirection = ghostDirection
+    } else if (ghostName === 'clyde') {
+        clydeDirection = ghostDirection
+    }
+};
+
 // Begin atempt at Ghost chase logic. Ghosts will check each direction they can move (not a wall) and
 // calculate the distance from pacman if they were to move in that direction, then move in the direction
 // that results in the shortest distance to pacman.
@@ -283,12 +318,12 @@ const ghostInBounds = (ghostPosition) => {
 
 const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   //check each direction of the ghost postition and see if it is not a wall, then calculate the distance from pacman if the ghost were to move in that direction, then move the ghost in the direction that results in the shortest distance to pacman
-  if (gameGridData[ghostPosition[0]][ghostPosition[1] - 1] === 9) {
-    distanceUp = levelData.blinkyStart;
-    distanceDown = Infinity;
-    distanceLeft = Infinity;
-    distanceRight = Infinity;
-  } else {
+  // if (gameGridData[ghostPosition[0]][ghostPosition[1] - 1] === 9) {
+  //   distanceUp = levelData.blinkyStart;
+  //   distanceDown = Infinity;
+  //   distanceLeft = Infinity;
+  //   distanceRight = Infinity;
+  // } else {
     if (
       !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
       ghostDirectionLast !== 'down'
@@ -334,7 +369,7 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
     } else {
       distanceRight = Infinity;
     }
-  }
+    // }
 
   return determineShortestDistance(
     distanceUp,
