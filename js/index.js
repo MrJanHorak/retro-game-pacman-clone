@@ -5,7 +5,7 @@ console.log("levelsData: ", levelsData);
 // initial variables for game state
 let score = 0,
   highScore = 0,
-  lives = 0,
+  lives = 6,
   isScatterMode = false;
 
 let gameOver,
@@ -42,11 +42,12 @@ let gameOver,
 let pinkyStarted = false,
   inkyStarted = false,
   clydeStarted = false;
+gameStarted = false;
 
-levelData = levelsData.level1;
-gameGridData = levelData.gameGrid;
+levelData = JSON.parse(JSON.stringify(levelsData.level1));
+gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
 cruiseElroyTrigger = levelData.cruiseElroyTrigger;
-lives = levelData.lives;
+// lives = levelData.lives;
 
 pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
 blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
@@ -58,6 +59,10 @@ bonus = levelData.bonusInfo.type;
 
 // functions
 const gameLoop = () => {
+  if (!gameStarted) {
+    return;
+  }
+  checkGameOver();
   if (pacmanDirection === "right") {
     checkTunnelWrapAround(pacmanPosition);
     movePacmanRight(pacmanPosition);
@@ -117,11 +122,54 @@ const gameLoop = () => {
   }
 
   if (gameOver) {
+    gameStatusEl.textContent = "Game Over!";
+    gameStarted = false;
     console.log("Game Over!");
     return;
   }
 
   setTimeout(gameLoop, 100);
+};
+
+const checkGameOver = () => {
+  if (lives <= 0) {
+    gameOver = true;
+    gameStarted = false;
+  }
+};
+
+const gameStartPlayerPlacement = () => {
+  pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+  blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+  pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+  inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+  clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+  bonusPosition = JSON.parse(JSON.stringify(levelData.bonusInfo.location));
+  bonus = levelData.bonusInfo.type;
+  pinkyStarted = false;
+  inkyStarted = false;
+  clydeStarted = false;
+  levelData = JSON.parse(JSON.stringify(levelsData.level1));
+  gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
+
+  levelsData.level1.gameGrid.forEach((row, rowIndex) => {
+    row.forEach((cell, cellIndex) => {
+      if (cell === 80) {
+        const cellEl = document.createElement("div");
+        cellEl.classList.add("pellet");
+        cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+        cellEl.style.gridRowStart = `${rowIndex + 1}`;
+        gameGrid.appendChild(cellEl);
+      }
+      if (cell === 81) {
+        const cellEl = document.createElement("div");
+        cellEl.classList.add("power-pellet");
+        cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+        cellEl.style.gridRowStart = `${rowIndex + 1}`;
+        gameGrid.appendChild(cellEl);
+      }
+    });
+  });
 };
 
 const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
@@ -791,24 +839,29 @@ bonusEl.classList.add("bonus");
 bonusEl.textContent = `Bonus: ${bonus}`;
 bottomInfoBar.appendChild(bonusEl);
 
-levelsData.level1.gameGrid.forEach((row, rowIndex) => {
-  row.forEach((cell, cellIndex) => {
-    if (cell === 80) {
-      const cellEl = document.createElement("div");
-      cellEl.classList.add("pellet");
-      cellEl.style.gridColumnStart = `${cellIndex + 1}`;
-      cellEl.style.gridRowStart = `${rowIndex + 1}`;
-      gameGrid.appendChild(cellEl);
-    }
-    if (cell === 81) {
-      const cellEl = document.createElement("div");
-      cellEl.classList.add("power-pellet");
-      cellEl.style.gridColumnStart = `${cellIndex + 1}`;
-      cellEl.style.gridRowStart = `${rowIndex + 1}`;
-      gameGrid.appendChild(cellEl);
-    }
-  });
-});
+const gameStatusEl = document.createElement("div");
+gameStatusEl.classList.add("game-status");
+gameStatusEl.textContent = "Start Game!";
+gameContainer.appendChild(gameStatusEl);
+
+// levelsData.level1.gameGrid.forEach((row, rowIndex) => {
+//   row.forEach((cell, cellIndex) => {
+//     if (cell === 80) {
+//       const cellEl = document.createElement("div");
+//       cellEl.classList.add("pellet");
+//       cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+//       cellEl.style.gridRowStart = `${rowIndex + 1}`;
+//       gameGrid.appendChild(cellEl);
+//     }
+//     if (cell === 81) {
+//       const cellEl = document.createElement("div");
+//       cellEl.classList.add("power-pellet");
+//       cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+//       cellEl.style.gridRowStart = `${rowIndex + 1}`;
+//       gameGrid.appendChild(cellEl);
+//     }
+//   });
+// });
 
 const pacman = document.createElement("div");
 pacman.classList.add("pacman");
@@ -868,6 +921,22 @@ document.addEventListener("keydown", (event) => {
     case "D":
       pacmanDirection = "right";
       break;
+    case "Space":
+    case " ":
+      if (!gameStarted || gameOver) {
+        lives = 6;
+        livesEl.textContent = `Lives: ${lives}`;
+        gameStarted = true;
+        gameOver = false;
+        gameStatusEl.textContent = "";
+        setTimeout(gameLoop, 100);
+        gameStartPlayerPlacement();
+      } else {
+        gameStarted = false;
+        gameStatusEl.textContent = "Game Paused";
+      }
+
+      break;
   }
 });
 
@@ -878,5 +947,6 @@ gameOver = false;
 score = 0;
 highScore = 0;
 pacmanDirection = "right";
-
-gameLoop();
+// if (gameStarted) {
+//   gameLoop();
+// }
