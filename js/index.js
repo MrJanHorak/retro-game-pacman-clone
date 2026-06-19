@@ -149,6 +149,11 @@ const gameStartPlayerPlacement = () => {
   pinkyStarted = false;
   inkyStarted = false;
   clydeStarted = false;
+  pelletCount = 0;
+  ghostCount = 0;
+  gameOver = false;
+  pacmanDirection = "right";
+  score = 0;
   levelData = JSON.parse(JSON.stringify(levelsData.level1));
   gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
 
@@ -410,23 +415,6 @@ const reverseGhostDirection = (ghostDirection) => {
       return "left";
   }
 };
-
-// const ghostScatterMode = (ghostName, ghostDirection, ghostPosition) => {
-//   switch (ghostName) {
-//     case "blinky":
-//       ghostDirection = moveGhost(ghostPosition, [27, 0], ghostDirection);
-//       break;
-//     case "pinky":
-//       ghostDirection = moveGhost(ghostPosition, [0, 0], ghostDirection);
-//       break;
-//     case "inky":
-//       ghostDirection = moveGhost(ghostPosition, [27, 31], ghostDirection);
-//       break;
-//     case "clyde":
-//       ghostDirection = moveGhost(ghostPosition, [0, 31], ghostDirection);
-//       break;
-//   }
-// };
 
 const activateScatterMode = () => {
   isScatterMode = true;
@@ -940,13 +928,4 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-// game loop
-pelletCount = 0;
-ghostCount = 0;
-gameOver = false;
-score = 0;
-highScore = 0;
-pacmanDirection = "right";
-// if (gameStarted) {
-//   gameLoop();
-// }
+
