@@ -347,6 +347,12 @@ textarea {
   /* background-color: orange; */
 } 
 
+.scared-ghost {
+  background-image: url('../assets/characterSprites/ghostGeneral/scared_blue.svg');
+  background-size: 200%;
+  /* background-color: blue; */
+}
+
 .pellet {
   width: 20%;
   height: 20%;

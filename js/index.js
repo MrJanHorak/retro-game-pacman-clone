@@ -63,6 +63,7 @@ const gameLoop = () => {
     movePacmanRight(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
+    checkGhostCollision();
     checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
     checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
     checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
@@ -77,6 +78,7 @@ const gameLoop = () => {
     checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
     checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
     checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostCollision();
     movePacmanLeft(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -93,6 +95,7 @@ const gameLoop = () => {
     movePacmanUp(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
+    checkGhostCollision();
     moveBlinky();
     movePinky();
     moveInky();
@@ -103,6 +106,7 @@ const gameLoop = () => {
     checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
     checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
     checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostCollision();
     movePacmanDown(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -179,6 +183,81 @@ const chompPowerPellet = (pacmanPosition) => {
     score += 50;
     updateScore();
     activateScatterMode();
+  }
+};
+
+const checkGhostCollision = () => {
+  if (
+    pacmanPosition[0] === blinkyPosition[0] &&
+    pacmanPosition[1] === blinkyPosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+      blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
+      blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
+  }
+  if (
+    pacmanPosition[0] === pinkyPosition[0] &&
+    pacmanPosition[1] === pinkyPosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+      pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+      pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
+  }
+  if (
+    pacmanPosition[0] === inkyPosition[0] &&
+    pacmanPosition[1] === inkyPosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+      inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
+      inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
+  }
+  if (
+    pacmanPosition[0] === clydePosition[0] &&
+    pacmanPosition[1] === clydePosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+      clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
+      clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
   }
 };
 
@@ -307,9 +386,17 @@ const activateScatterMode = () => {
   reverseGhostDirection(pinkyDirection);
   reverseGhostDirection(inkyDirection);
   reverseGhostDirection(clydeDirection);
+  blinky.classList.add("scared-ghost");
+  pinky.classList.add("scared-ghost");
+  inky.classList.add("scared-ghost");
+  clyde.classList.add("scared-ghost");
   setTimeout(() => {
     isScatterMode = false;
-  }, 7000);
+    blinky.classList.remove("scared-ghost");
+    pinky.classList.remove("scared-ghost");
+    inky.classList.remove("scared-ghost");
+    clyde.classList.remove("scared-ghost");
+  }, 8000);
 };
 
 const calculateGhostPacmanDistance = (ghostPosition, ghostTargetCell) => {
@@ -408,6 +495,19 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   );
 };
 
+const slowGhost = (ms) => {
+  console.log("slowing ghost");
+  return new Promise((resolve) =>
+    setTimeout(
+      resolve,
+      ((ms) => {
+        console.log("ghost should be slowed now");
+        resolve();
+      })(),
+    ),
+  );
+};
+
 const moveBlinky = () => {
   if (blinkyDirection !== Infinity || blinkyDirection !== undefined) {
     blinkyDirectionLast = blinkyDirection;
@@ -435,7 +535,9 @@ const moveBlinky = () => {
       blinkyPosition[0] += 1;
       break;
   }
-
+  if (isScatterMode) {
+    slowGhost(2750);
+  }
   blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
   blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
 };
@@ -495,7 +597,9 @@ const movePinky = () => {
       pinkyPosition[0] += 1;
       break;
   }
-
+  if (isScatterMode) {
+    slowGhost(2750);
+  }
   pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
   pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
 };
@@ -557,6 +661,10 @@ const moveInky = () => {
       break;
   }
 
+  if (isScatterMode) {
+    slowGhost(2750);
+  }
+
   inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
   inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
 };
@@ -609,6 +717,10 @@ const moveClyde = () => {
     case "right":
       clydePosition[0] += 1;
       break;
+  }
+
+  if (isScatterMode) {
+    slowGhost(2750);
   }
 
   clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
