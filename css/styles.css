@@ -347,6 +347,12 @@ textarea {
   /* background-color: orange; */
 } 
 
+.scared-ghost {
+  background-image: url('../assets/characterSprites/ghostGeneral/scared_blue.svg');
+  background-size: 200%;
+  /* background-color: blue; */
+}
+
 .pellet {
   width: 20%;
   height: 20%;
@@ -363,4 +369,16 @@ textarea {
   border-radius: 50%;
   justify-self: center;
   align-self: center;
+}
+
+.game-status {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5em;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 5px;
 }

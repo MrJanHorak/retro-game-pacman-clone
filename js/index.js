@@ -1,11 +1,13 @@
 // import of game assests (sounds, images, etc. if needed)
-import { levelsData } from '../data/levels.js';
-console.log('levelsData: ', levelsData);
+import { levelsData } from "../data/levels.js";
+console.log("levelsData: ", levelsData);
 
 // initial variables for game state
 let score = 0,
   highScore = 0,
-  lives = 0;
+  lives = 6,
+  isScatterMode = false;
+
 let gameOver,
   gameStarted,
   level,
@@ -17,8 +19,8 @@ let gameOver,
   distanceUp,
   distanceDown,
   distanceLeft,
-  distanceRight;
-let gameGridData,
+  distanceRight,
+  gameGridData,
   cruiseElroyTrigger,
   pacmanPosition,
   blinkyPosition,
@@ -27,40 +29,61 @@ let gameGridData,
   clydePosition,
   bonusPosition,
   pacmanDirection,
-  ghostStartPosition;
-let blinkyDirection, pinkyDirection, inkyDirection, clydeDirection;
-let blinkyDirectionLast,
+  ghostStartPosition,
+  blinkyDirection,
+  pinkyDirection,
+  inkyDirection,
+  clydeDirection,
+  blinkyDirectionLast,
   pinkyDirectionLast,
   inkyDirectionLast,
   clydeDirectionLast;
 
-levelData = levelsData.level1;
-gameGridData = levelData.gameGrid;
-cruiseElroyTrigger = levelData.cruiseElroyTrigger;
-lives = levelData.lives;
+let pinkyStarted = false,
+  inkyStarted = false,
+  clydeStarted = false;
+gameStarted = false;
 
-pacmanPosition = levelData.playerStart;
-blinkyPosition = levelData.blinkyStart;
-ghostStartPosition = levelData.blinkyStart;
-pinkyPosition = levelData.pinkyStart;
-inkyPosition = levelData.inkyStart;
-clydePosition = levelData.clydeStart;
-bonusPosition = levelData.bonusInfo.location;
+levelData = JSON.parse(JSON.stringify(levelsData.level1));
+gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
+cruiseElroyTrigger = levelData.cruiseElroyTrigger;
+// lives = levelData.lives;
+
+pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+bonusPosition = JSON.parse(JSON.stringify(levelData.bonusInfo.location));
 bonus = levelData.bonusInfo.type;
 
 // functions
 const gameLoop = () => {
-  if (pacmanDirection === 'right') {
+  if (!gameStarted) {
+    return;
+  }
+  checkGameOver();
+  if (pacmanDirection === "right") {
     checkTunnelWrapAround(pacmanPosition);
     movePacmanRight(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
+    checkGhostCollision();
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
+    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
     moveBlinky();
     movePinky();
     moveInky();
     moveClyde();
-  } else if (pacmanDirection === 'left') {
+  } else if (pacmanDirection === "left") {
     checkTunnelWrapAround(pacmanPosition);
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
+    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostCollision();
     movePacmanLeft(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -68,17 +91,27 @@ const gameLoop = () => {
     movePinky();
     moveInky();
     moveClyde();
-  } else if (pacmanDirection === 'up') {
+  } else if (pacmanDirection === "up") {
     checkTunnelWrapAround(pacmanPosition);
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
+    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
     movePacmanUp(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
+    checkGhostCollision();
     moveBlinky();
     movePinky();
     moveInky();
     moveClyde();
-  } else if (pacmanDirection === 'down') {
+  } else if (pacmanDirection === "down") {
     checkTunnelWrapAround(pacmanPosition);
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
+    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostCollision();
     movePacmanDown(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -87,22 +120,82 @@ const gameLoop = () => {
     moveInky();
     moveClyde();
   }
-  // check for ghost collision
-  // check for bonus collection
-  // update score, lives, and other game state variables as needed
-  // render updated game state to the DOM
+
   if (gameOver) {
-    console.log('Game Over!');
+    gameStatusEl.textContent = "Game Over!";
+    gameStarted = false;
+    console.log("Game Over!");
     return;
   }
 
   setTimeout(gameLoop, 100);
 };
 
+const checkGameOver = () => {
+  if (lives <= 0) {
+    gameOver = true;
+    gameStarted = false;
+  }
+};
+
+const gameStartPlayerPlacement = () => {
+  pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+  blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+  pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+  inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+  clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+  bonusPosition = JSON.parse(JSON.stringify(levelData.bonusInfo.location));
+  bonus = levelData.bonusInfo.type;
+  pinkyStarted = false;
+  inkyStarted = false;
+  clydeStarted = false;
+  pelletCount = 0;
+  ghostCount = 0;
+  gameOver = false;
+  pacmanDirection = "right";
+  score = 0;
+  levelData = JSON.parse(JSON.stringify(levelsData.level1));
+  gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
+
+  levelsData.level1.gameGrid.forEach((row, rowIndex) => {
+    row.forEach((cell, cellIndex) => {
+      if (cell === 80) {
+        const cellEl = document.createElement("div");
+        cellEl.classList.add("pellet");
+        cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+        cellEl.style.gridRowStart = `${rowIndex + 1}`;
+        gameGrid.appendChild(cellEl);
+      }
+      if (cell === 81) {
+        const cellEl = document.createElement("div");
+        cellEl.classList.add("power-pellet");
+        cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+        cellEl.style.gridRowStart = `${rowIndex + 1}`;
+        gameGrid.appendChild(cellEl);
+      }
+    });
+  });
+};
+
 const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
   if (
     gameGridData[playerPosition1][playerPosition0] > 0 &&
     gameGridData[playerPosition1][playerPosition0] <= 53
+  ) {
+    return true;
+  }
+};
+
+const ghostWallColisionDetection = (
+  ghostPosition0,
+  ghostPosition1,
+  direction,
+) => {
+  if (
+    gameGridData[ghostPosition1][ghostPosition0] > 0 &&
+    gameGridData[ghostPosition1][ghostPosition0] < 9 &&
+    gameGridData[ghostPosition1][ghostPosition0] > 9 &&
+    gameGridData[ghostPosition1][ghostPosition0] < 53
   ) {
     return true;
   }
@@ -123,7 +216,7 @@ const chompPellet = (pacmanPosition) => {
       .querySelector(
         `.pellet[style="grid-column-start: ${pacmanPosition[0] + 1}; grid-row-start: ${pacmanPosition[1] + 1};"]`,
       )
-      .classList.remove('pellet');
+      .classList.remove("pellet");
     pelletCount += 1;
     score += 10;
     updateScore();
@@ -132,30 +225,105 @@ const chompPellet = (pacmanPosition) => {
 
 const chompPowerPellet = (pacmanPosition) => {
   if (gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 81) {
-    console.log('power pellet collected');
+    console.log("power pellet collected");
     gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0;
     const powerPelletEl = document
       .querySelector(
         `.power-pellet[style="grid-column-start: ${pacmanPosition[0] + 1}; grid-row-start: ${pacmanPosition[1] + 1};"]`,
       )
-      .classList.remove('power-pellet');
+      .classList.remove("power-pellet");
     pelletCount += 1;
     score += 50;
     updateScore();
-    // set ghosts to frightened mode for a limited time
+    activateScatterMode();
+  }
+};
+
+const checkGhostCollision = () => {
+  if (
+    pacmanPosition[0] === blinkyPosition[0] &&
+    pacmanPosition[1] === blinkyPosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+      blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
+      blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
+  }
+  if (
+    pacmanPosition[0] === pinkyPosition[0] &&
+    pacmanPosition[1] === pinkyPosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+      pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+      pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
+  }
+  if (
+    pacmanPosition[0] === inkyPosition[0] &&
+    pacmanPosition[1] === inkyPosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+      inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
+      inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
+  }
+  if (
+    pacmanPosition[0] === clydePosition[0] &&
+    pacmanPosition[1] === clydePosition[1]
+  ) {
+    if (isScatterMode) {
+      score += 200;
+      updateScore();
+      clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+      clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
+      clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
+    } else {
+      lives -= 1;
+      livesEl.textContent = `Lives: ${lives}`;
+      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
   }
 };
 
 const movePacmanRight = (pacmanPosition) => {
   pacmanPosition[0] += 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
   ) {
     pacmanPosition[0] -= 1;
     return;
   }
   pacman.style.backgroundImage =
-    'url(../assets/characterSprites/pacman/pacman_right.svg )';
+    "url(../assets/characterSprites/pacman/pacman_right.svg )";
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
@@ -163,13 +331,13 @@ const movePacmanRight = (pacmanPosition) => {
 const movePacmanLeft = (pacmanPosition) => {
   pacmanPosition[0] -= 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
   ) {
     pacmanPosition[0] += 1;
     return;
   }
   pacman.style.backgroundImage =
-    'url(../assets/characterSprites/pacman/pacman_left.svg )';
+    "url(../assets/characterSprites/pacman/pacman_left.svg )";
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
@@ -177,13 +345,13 @@ const movePacmanLeft = (pacmanPosition) => {
 const movePacmanUp = (pacmanPosition) => {
   pacmanPosition[1] -= 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
   ) {
     pacmanPosition[1] += 1;
     return;
   }
   pacman.style.backgroundImage =
-    'url(../assets/characterSprites/pacman/pacman_up.svg )';
+    "url(../assets/characterSprites/pacman/pacman_up.svg )";
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
@@ -191,45 +359,81 @@ const movePacmanUp = (pacmanPosition) => {
 const movePacmanDown = (pacmanPosition) => {
   pacmanPosition[1] += 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
   ) {
     pacmanPosition[1] -= 1;
     return;
   }
   pacman.style.backgroundImage =
-    'url(../assets/characterSprites/pacman/pacman_down.svg )';
+    "url(../assets/characterSprites/pacman/pacman_down.svg )";
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
 
-// check of moving through tunnels and wrap around to the other side of the grid
-// the game grid is 28 columns wide, so if pacman moves left from column 0, he should appear in column 27, and vice versa
-// the game grid is 31 rows high, so if pacman moves up from row 0, he should appear in row 30, and vice versa
-
 const checkTunnelWrapAround = (pacmanPosition) => {
-  if (pacmanPosition[0] <= 0 && pacmanDirection === 'left') {
+  if (pacmanPosition[0] <= 0 && pacmanDirection === "left") {
     pacmanPosition[0] = 28;
-  } else if (pacmanPosition[0] >= 27 && pacmanDirection === 'right') {
+  } else if (pacmanPosition[0] >= 27 && pacmanDirection === "right") {
     pacmanPosition[0] = -1;
   }
 
-  if (pacmanPosition[1] === 0 && pacmanDirection === 'up') {
+  if (pacmanPosition[1] === 0 && pacmanDirection === "up") {
     pacmanPosition[1] = 31;
-  } else if (pacmanPosition[1] === 30 && pacmanDirection === 'down') {
+  } else if (pacmanPosition[1] === 30 && pacmanDirection === "down") {
     pacmanPosition[1] = -1;
   }
 };
 
-// Begin atempt at Ghost chase logic. Ghosts will check each direction they can move (not a wall) and
-// calculate the distance from pacman if they were to move in that direction, then move in the direction
-// that results in the shortest distance to pacman.
-//
-// Each ghost will have a different target cell that they are trying to get to
-// (blinky targets pacman's current position,
-// pinky targets the cell 4 spaces ahead of pacman in the direction pacman is currently moving,
-// inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2,
-// and clyde targets pacman if clyde is more than 8 spaces away from pacman, but if clyde is within 8 spaces
-// of pacman, clyde targets his scatter corner (bottom left corner of the grid))
+const checkGhostTunnelReverse = (ghostPosition, ghostDirection, ghostName) => {
+  if (ghostPosition[0] <= 0 && ghostDirection === "left") {
+    ghostPosition[0] = 0;
+    ghostDirection = "right";
+  } else if (ghostPosition[0] >= 27 && ghostDirection === "right") {
+    ghostPosition[0] = 27;
+    ghostDirection = "left";
+  }
+  if (ghostName === "blinky") {
+    blinkyDirection = ghostDirection;
+  } else if (ghostName === "pinky") {
+    pinkyDirection = ghostDirection;
+  } else if (ghostName === "inky") {
+    inkyDirection = ghostDirection;
+  } else if (ghostName === "clyde") {
+    clydeDirection = ghostDirection;
+  }
+};
+
+const reverseGhostDirection = (ghostDirection) => {
+  switch (ghostDirection) {
+    case "up":
+      return "down";
+    case "down":
+      return "up";
+    case "left":
+      return "right";
+    case "right":
+      return "left";
+  }
+};
+
+const activateScatterMode = () => {
+  isScatterMode = true;
+  reverseGhostDirection(blinkyDirection);
+  reverseGhostDirection(pinkyDirection);
+  reverseGhostDirection(inkyDirection);
+  reverseGhostDirection(clydeDirection);
+  blinky.classList.add("scared-ghost");
+  pinky.classList.add("scared-ghost");
+  inky.classList.add("scared-ghost");
+  clyde.classList.add("scared-ghost");
+  setTimeout(() => {
+    isScatterMode = false;
+    blinky.classList.remove("scared-ghost");
+    pinky.classList.remove("scared-ghost");
+    inky.classList.remove("scared-ghost");
+    clyde.classList.remove("scared-ghost");
+  }, 8000);
+};
 
 const calculateGhostPacmanDistance = (ghostPosition, ghostTargetCell) => {
   const distance =
@@ -254,13 +458,13 @@ const determineShortestDistance = (
 
   switch (minDistance) {
     case distanceUp:
-      return 'up';
+      return "up";
     case distanceLeft:
-      return 'left';
+      return "left";
     case distanceDown:
-      return 'down';
+      return "down";
     case distanceRight:
-      return 'right';
+      return "right";
   }
 };
 
@@ -271,60 +475,52 @@ const ghostInBounds = (ghostPosition) => {
 };
 
 const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
-  //check each direction of the ghost postition and see if it is not a wall, then calculate the distance from pacman if the ghost were to move in that direction, then move the ghost in the direction that results in the shortest distance to pacman
-  if (gameGridData[ghostPosition[0]][ghostPosition[1] - 1] === 9) {
-    console.log('True');
-    distanceUp = levelData.blinkyStart;
-    distanceDown = Infinity;
-    distanceLeft = Infinity;
-    distanceRight = Infinity;
+  if (
+    !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
+    ghostDirectionLast !== "down"
+  ) {
+    distanceUp = calculateGhostPacmanDistance(
+      [ghostPosition[0], ghostPosition[1] - 1],
+      ghostTargetCell,
+    );
   } else {
-    if (
-      !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
-      ghostDirectionLast !== 'down'
-    ) {
-      distanceUp = calculateGhostPacmanDistance(
-        [ghostPosition[0], ghostPosition[1] - 1],
-        ghostTargetCell,
-      );
-    } else {
-      distanceUp = Infinity;
-    }
-    if (
-      ghostInBounds([ghostPosition[0] - 1, ghostPosition[1]]) &&
-      !playerWallColisionDetection(ghostPosition[0] - 1, ghostPosition[1]) &&
-      ghostDirectionLast !== 'right'
-    ) {
-      distanceLeft = calculateGhostPacmanDistance(
-        [ghostPosition[0] - 1, ghostPosition[1]],
-        ghostTargetCell,
-      );
-    } else {
-      distanceLeft = Infinity;
-    }
-    if (
-      !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] + 1) &&
-      ghostDirectionLast !== 'up'
-    ) {
-      distanceDown = calculateGhostPacmanDistance(
-        [ghostPosition[0], ghostPosition[1] + 1],
-        ghostTargetCell,
-      );
-    } else {
-      distanceDown = Infinity;
-    }
-    if (
-      !playerWallColisionDetection(ghostPosition[0] + 1, ghostPosition[1]) &&
-      ghostDirectionLast !== 'left'
-    ) {
-      distanceRight = calculateGhostPacmanDistance(
-        [ghostPosition[0] + 1, ghostPosition[1]],
-        ghostTargetCell,
-      );
-    } else {
-      distanceRight = Infinity;
-    }
+    distanceUp = Infinity;
   }
+  if (
+    ghostInBounds([ghostPosition[0] - 1, ghostPosition[1]]) &&
+    !playerWallColisionDetection(ghostPosition[0] - 1, ghostPosition[1]) &&
+    ghostDirectionLast !== "right"
+  ) {
+    distanceLeft = calculateGhostPacmanDistance(
+      [ghostPosition[0] - 1, ghostPosition[1]],
+      ghostTargetCell,
+    );
+  } else {
+    distanceLeft = Infinity;
+  }
+  if (
+    !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] + 1) &&
+    ghostDirectionLast !== "up"
+  ) {
+    distanceDown = calculateGhostPacmanDistance(
+      [ghostPosition[0], ghostPosition[1] + 1],
+      ghostTargetCell,
+    );
+  } else {
+    distanceDown = Infinity;
+  }
+  if (
+    !playerWallColisionDetection(ghostPosition[0] + 1, ghostPosition[1]) &&
+    ghostDirectionLast !== "left"
+  ) {
+    distanceRight = calculateGhostPacmanDistance(
+      [ghostPosition[0] + 1, ghostPosition[1]],
+      ghostTargetCell,
+    );
+  } else {
+    distanceRight = Infinity;
+  }
+  // }
 
   return determineShortestDistance(
     distanceUp,
@@ -335,28 +531,48 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   );
 };
 
+const slowGhost = (ms) => {
+  console.log("slowing ghost");
+  return new Promise((resolve) =>
+    setTimeout(
+      resolve,
+      ((ms) => {
+        console.log("ghost should be slowed now");
+        resolve();
+      })(),
+    ),
+  );
+};
+
 const moveBlinky = () => {
   if (blinkyDirection !== Infinity || blinkyDirection !== undefined) {
     blinkyDirectionLast = blinkyDirection;
   }
-  blinkyDirection = moveGhost(
-    blinkyPosition,
-    pacmanPosition,
-    blinkyDirectionLast,
-  );
+  if (!isScatterMode) {
+    blinkyDirection = moveGhost(
+      blinkyPosition,
+      pacmanPosition,
+      blinkyDirectionLast,
+    );
+  } else {
+    blinkyDirection = moveGhost(blinkyPosition, [27, 0], blinkyDirectionLast);
+  }
   switch (blinkyDirection) {
-    case 'up':
+    case "up":
       blinkyPosition[1] -= 1;
       break;
-    case 'down':
+    case "down":
       blinkyPosition[1] += 1;
       break;
-    case 'left':
+    case "left":
       blinkyPosition[0] -= 1;
       break;
-    case 'right':
+    case "right":
       blinkyPosition[0] += 1;
       break;
+  }
+  if (isScatterMode) {
+    slowGhost(2750);
   }
   blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
   blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
@@ -367,84 +583,124 @@ const movePinky = () => {
 
   let pinkyTargetCell;
 
+  if (blinkyPosition !== levelData.blinkyStart && !pinkyStarted) {
+    setTimeout(() => {
+      pinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+      pinkyStarted = true;
+    }, 2000);
+  }
+
   if (pinkyDirection !== Infinity || pinkyDirection !== undefined) {
     pinkyDirectionLast = pinkyDirection;
   }
 
-  if (gameGridData[pinkyPosition[0]][pinkyPosition[1] - 1] === 9) {
-    console.log('True');
-    pinkyPosition = levelData.blinkyStart;
-    pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
-    pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-    return
-  }
-
   switch (pacmanDirection) {
-    case 'up':
+    case "up":
       pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] - 4];
       break;
-    case 'down':
+    case "down":
       pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] + 4];
       break;
-    case 'left':
+    case "left":
       pinkyTargetCell = [pacmanPosition[0] - 4, pacmanPosition[1]];
       break;
-    case 'right':
+    case "right":
       pinkyTargetCell = [pacmanPosition[0] + 4, pacmanPosition[1]];
       break;
   }
 
-  pinkyDirection = moveGhost(
-    pinkyPosition,
-    pinkyTargetCell,
-    pinkyDirectionLast,
-  );
+  if (!isScatterMode) {
+    pinkyDirection = moveGhost(
+      pinkyPosition,
+      pinkyTargetCell,
+      pinkyDirectionLast,
+    );
+  } else {
+    pinkyDirection = moveGhost(pinkyPosition, [0, 0], pinkyDirectionLast);
+  }
 
   switch (pinkyDirection) {
-    case 'up':
-      // console.log('pinky up')
+    case "up":
       pinkyPosition[1] -= 1;
       break;
-    case 'down':
-      // console.log('pinky down')
+    case "down":
       pinkyPosition[1] += 1;
       break;
-    case 'left':
-      // console.log('pinky left')
+    case "left":
       pinkyPosition[0] -= 1;
       break;
-    case 'right':
-      // console.log('pinky right')
+    case "right":
       pinkyPosition[0] += 1;
       break;
   }
-
+  if (isScatterMode) {
+    slowGhost(2750);
+  }
   pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
   pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
 };
+
 const moveInky = () => {
   // inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2 (so basically if blinky is at (5,5) and the cell 2 spaces ahead of pacman is (10,10), inky targets the cell (15,15))
   let inkyTargetCell;
   let cellTwoAhead;
+
+  if (blinkyPosition !== levelData.blinkyStart && !inkyStarted) {
+    setTimeout(() => {
+      inkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+      inkyStarted = true;
+    }, 4000);
+  }
+
+  if (inkyDirection !== Infinity || inkyDirection !== undefined) {
+    inkyDirectionLast = inkyDirection;
+  }
+
   switch (pacmanDirection) {
-    case 'up':
+    case "up":
       cellTwoAhead = [pacmanPosition[0], pacmanPosition[1] - 2];
       break;
-    case 'down':
+    case "down":
       cellTwoAhead = [pacmanPosition[0], pacmanPosition[1] + 2];
       break;
-    case 'left':
+    case "left":
       cellTwoAhead = [pacmanPosition[0] - 2, pacmanPosition[1]];
       break;
-    case 'right':
+    case "right":
       cellTwoAhead = [pacmanPosition[0] + 2, pacmanPosition[1]];
       break;
   }
+
   inkyTargetCell = [
     cellTwoAhead[0] + (cellTwoAhead[0] - blinkyPosition[0]),
     cellTwoAhead[1] + (cellTwoAhead[1] - blinkyPosition[1]),
   ];
-  moveGhost(inkyPosition, inkyTargetCell);
+
+  if (!isScatterMode) {
+    inkyDirection = moveGhost(inkyPosition, inkyTargetCell, inkyDirectionLast);
+  } else {
+    inkyDirection = moveGhost(inkyPosition, [27, 31], inkyDirectionLast);
+  }
+
+  switch (inkyDirection) {
+    case "up":
+      inkyPosition[1] -= 1;
+      break;
+    case "down":
+      inkyPosition[1] += 1;
+      break;
+    case "left":
+      inkyPosition[0] -= 1;
+      break;
+    case "right":
+      inkyPosition[0] += 1;
+      break;
+  }
+
+  if (isScatterMode) {
+    slowGhost(2750);
+  }
+
   inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
   inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
 };
@@ -456,173 +712,220 @@ const moveClyde = () => {
     pacmanPosition,
   );
   let clydeTargetCell;
+
+  if (clydePosition !== levelData.blinkyStart && !clydeStarted) {
+    setTimeout(() => {
+      clydePosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+      clydeStarted = true;
+    }, 6000);
+  }
+
+  if (clydeDirection !== Infinity || clydeDirection !== undefined) {
+    clydeDirectionLast = clydeDirection;
+  }
+
   if (distanceToPacman > 64) {
     clydeTargetCell = pacmanPosition;
   } else {
     clydeTargetCell = [0, 31];
   }
-  moveGhost(clydePosition, clydeTargetCell);
+
+  if (!isScatterMode) {
+    clydeDirection = moveGhost(
+      clydePosition,
+      clydeTargetCell,
+      clydeDirectionLast,
+    );
+  } else {
+    clydeDirection = moveGhost(clydePosition, [0, 31], clydeDirectionLast);
+  }
+
+  switch (clydeDirection) {
+    case "up":
+      clydePosition[1] -= 1;
+      break;
+    case "down":
+      clydePosition[1] += 1;
+      break;
+    case "left":
+      clydePosition[0] -= 1;
+      break;
+    case "right":
+      clydePosition[0] += 1;
+      break;
+  }
+
+  if (isScatterMode) {
+    slowGhost(2750);
+  }
+
   clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
   clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
 };
 
 // Cached DOM elements
-const body = document.querySelector('body');
+const body = document.querySelector("body");
 
 // create DOM elements for game play
-const gameContainer = document.createElement('div');
-gameContainer.classList.add('game-container');
+const gameContainer = document.createElement("div");
+gameContainer.classList.add("game-container");
 body.appendChild(gameContainer);
 
-const topInfoBar = document.createElement('div');
-topInfoBar.classList.add('top-info-bar');
+const topInfoBar = document.createElement("div");
+topInfoBar.classList.add("top-info-bar");
 gameContainer.appendChild(topInfoBar);
 
-const oneUpEl = document.createElement('div');
-oneUpEl.classList.add('oneUp', 'playerInfo');
-oneUpEl.textContent = '1UP';
+const oneUpEl = document.createElement("div");
+oneUpEl.classList.add("oneUp", "playerInfo");
+oneUpEl.textContent = "1UP";
 topInfoBar.appendChild(oneUpEl);
 
-const scoreOneEl = document.createElement('div');
-scoreOneEl.classList.add('score');
+const scoreOneEl = document.createElement("div");
+scoreOneEl.classList.add("score");
 scoreOneEl.textContent = `${score}`;
 oneUpEl.appendChild(scoreOneEl);
 
-const highScoreLabelEl = document.createElement('div');
-highScoreLabelEl.classList.add('high-score');
+const highScoreLabelEl = document.createElement("div");
+highScoreLabelEl.classList.add("high-score");
 highScoreLabelEl.textContent = `High Score`;
 topInfoBar.appendChild(highScoreLabelEl);
 
-const highScoreEl = document.createElement('div');
-highScoreEl.classList.add('high-score-value', 'score');
+const highScoreEl = document.createElement("div");
+highScoreEl.classList.add("high-score-value", "score");
 highScoreEl.textContent = `${highScore}`;
 highScoreLabelEl.appendChild(highScoreEl);
 
-const twoUpEl = document.createElement('div');
-twoUpEl.classList.add('twoUp', 'playerInfo');
-twoUpEl.textContent = '2UP';
+const twoUpEl = document.createElement("div");
+twoUpEl.classList.add("twoUp", "playerInfo");
+twoUpEl.textContent = "2UP";
 topInfoBar.appendChild(twoUpEl);
 
-const scoreTwoEl = document.createElement('div');
-scoreTwoEl.classList.add('score');
+const scoreTwoEl = document.createElement("div");
+scoreTwoEl.classList.add("score");
 scoreTwoEl.textContent = `${score}`;
 twoUpEl.appendChild(scoreTwoEl);
 
-const gameCanvas = document.createElement('div');
-gameCanvas.classList.add('game-canvas');
+const gameCanvas = document.createElement("div");
+gameCanvas.classList.add("game-canvas");
 gameContainer.appendChild(gameCanvas);
 
-const gameGrid = document.createElement('div');
-gameGrid.classList.add('game-grid');
+const gameGrid = document.createElement("div");
+gameGrid.classList.add("game-grid");
 gameCanvas.appendChild(gameGrid);
 
-const bottomInfoBar = document.createElement('div');
-bottomInfoBar.classList.add('bottom-info-bar');
+const bottomInfoBar = document.createElement("div");
+bottomInfoBar.classList.add("bottom-info-bar");
 gameContainer.appendChild(bottomInfoBar);
 
-const livesEl = document.createElement('div');
-livesEl.classList.add('lives');
+const livesEl = document.createElement("div");
+livesEl.classList.add("lives");
 livesEl.textContent = `Lives: ${lives}`;
 bottomInfoBar.appendChild(livesEl);
 
-const bonusEl = document.createElement('div');
-bonusEl.classList.add('bonus');
+const bonusEl = document.createElement("div");
+bonusEl.classList.add("bonus");
 bonusEl.textContent = `Bonus: ${bonus}`;
 bottomInfoBar.appendChild(bonusEl);
 
-levelsData.level1.gameGrid.forEach((row, rowIndex) => {
-  row.forEach((cell, cellIndex) => {
-    if (cell === 80) {
-      const cellEl = document.createElement('div');
-      cellEl.classList.add('pellet');
-      cellEl.style.gridColumnStart = `${cellIndex + 1}`;
-      cellEl.style.gridRowStart = `${rowIndex + 1}`;
-      gameGrid.appendChild(cellEl);
-    }
-    if (cell === 81) {
-      const cellEl = document.createElement('div');
-      cellEl.classList.add('power-pellet');
-      cellEl.style.gridColumnStart = `${cellIndex + 1}`;
-      cellEl.style.gridRowStart = `${rowIndex + 1}`;
-      gameGrid.appendChild(cellEl);
-    }
-  });
-});
+const gameStatusEl = document.createElement("div");
+gameStatusEl.classList.add("game-status");
+gameStatusEl.textContent = "Start Game!";
+gameContainer.appendChild(gameStatusEl);
 
-// event listeners (for keyboard input, buttons, etc.)
+// levelsData.level1.gameGrid.forEach((row, rowIndex) => {
+//   row.forEach((cell, cellIndex) => {
+//     if (cell === 80) {
+//       const cellEl = document.createElement("div");
+//       cellEl.classList.add("pellet");
+//       cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+//       cellEl.style.gridRowStart = `${rowIndex + 1}`;
+//       gameGrid.appendChild(cellEl);
+//     }
+//     if (cell === 81) {
+//       const cellEl = document.createElement("div");
+//       cellEl.classList.add("power-pellet");
+//       cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+//       cellEl.style.gridRowStart = `${rowIndex + 1}`;
+//       gameGrid.appendChild(cellEl);
+//     }
+//   });
+// });
 
-// event listeners for start button (space), restart button (ESC), etc.
-
-// initialize game state
-
-/// temporary pacman placement to check grid allignment
-const pacman = document.createElement('div');
-pacman.classList.add('pacman');
+const pacman = document.createElement("div");
+pacman.classList.add("pacman");
 gameGrid.appendChild(pacman);
 
 pacman.style.gridColumnStart = `${levelData.playerStart[0] + 1}`;
 pacman.style.gridRowStart = `${levelData.playerStart[1] + 1}`;
 
-const blinky = document.createElement('div');
-blinky.classList.add('blinky');
+const blinky = document.createElement("div");
+blinky.classList.add("blinky");
 gameGrid.appendChild(blinky);
 
 blinky.style.gridColumnStart = `${levelData.blinkyStart[0] + 1}`;
 blinky.style.gridRowStart = `${levelData.blinkyStart[1] + 1}`;
 
-const pinky = document.createElement('div');
-pinky.classList.add('pinky');
+const pinky = document.createElement("div");
+pinky.classList.add("pinky");
 gameGrid.appendChild(pinky);
 
 pinky.style.gridColumnStart = `${levelData.pinkyStart[0] + 1}`;
 pinky.style.gridRowStart = `${levelData.pinkyStart[1] + 1}`;
 
-const inky = document.createElement('div');
-inky.classList.add('inky');
+const inky = document.createElement("div");
+inky.classList.add("inky");
 gameGrid.appendChild(inky);
 
 inky.style.gridColumnStart = `${levelData.inkyStart[0] + 1}`;
 inky.style.gridRowStart = `${levelData.inkyStart[1] + 1}`;
 
-const clyde = document.createElement('div');
-clyde.classList.add('clyde');
+const clyde = document.createElement("div");
+clyde.classList.add("clyde");
 gameGrid.appendChild(clyde);
 
 clyde.style.gridColumnStart = `${levelData.clydeStart[0] + 1}`;
 clyde.style.gridRowStart = `${levelData.clydeStart[1] + 1}`;
 
 // event listeners for WASD and arrow keys for player movement
-document.addEventListener('keydown', (event) => {
+document.addEventListener("keydown", (event) => {
   switch (event.key) {
-    case 'ArrowUp':
-    case 'w':
-    case 'W':
-      pacmanDirection = 'up';
+    case "ArrowUp":
+    case "w":
+    case "W":
+      pacmanDirection = "up";
       break;
-    case 'ArrowDown':
-    case 's':
-    case 'S':
-      pacmanDirection = 'down';
+    case "ArrowDown":
+    case "s":
+    case "S":
+      pacmanDirection = "down";
       break;
-    case 'ArrowLeft':
-    case 'a':
-    case 'A':
-      pacmanDirection = 'left';
+    case "ArrowLeft":
+    case "a":
+    case "A":
+      pacmanDirection = "left";
       break;
-    case 'ArrowRight':
-    case 'd':
-    case 'D':
-      pacmanDirection = 'right';
+    case "ArrowRight":
+    case "d":
+    case "D":
+      pacmanDirection = "right";
+      break;
+    case "Space":
+    case " ":
+      if (!gameStarted || gameOver) {
+        lives = 6;
+        livesEl.textContent = `Lives: ${lives}`;
+        gameStarted = true;
+        gameOver = false;
+        gameStatusEl.textContent = "";
+        setTimeout(gameLoop, 100);
+        gameStartPlayerPlacement();
+      } else {
+        gameStarted = false;
+        gameStatusEl.textContent = "Game Paused";
+      }
+
       break;
   }
 });
 
-// game loop
-pelletCount = 0;
-ghostCount = 0;
-gameOver = false;
-score = 0;
-highScore = 0;
-pacmanDirection = 'right';
 
-gameLoop();
