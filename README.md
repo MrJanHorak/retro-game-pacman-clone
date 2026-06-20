@@ -5,6 +5,37 @@ I plan to figure out the ghost algos (Pursuing and fleeing) as well as the level
 
 I will be updating this README.MD along the way as this project takes shape.
 
+### State of project: June 20, 2026:
+
+Game play it essentially fully completed in a basci MVP manner.
+
+What is working:
+
+* Keyboard control WASD and arrow keys for PacMan movement.
+* Pellet 'chomping' adds to score.
+* Ghost chase player based upon original chasing patterns of the original game.
+* 'Super-pellets' activate ghost flee behavior.
+* PacMan can chomp the ghosts when they are blue in the scared mode.
+* game over condition is set when PacMan loses all lives.
+
+What still needs to be implemented:
+
+* win condition when all pellets are gone.
+* bonus items
+* Blinky's angry mode
+* ghost speed to decrease when scared.
+* storing/persisting of Hi-Score in local storage.
+* animation polish of characters.
+
+Notes to expand upon:
+* chase behaviors of individual ghosts.
+* speed of characters through-out the game
+
+
+
+
+
+
 ### File Structure:
 
 #### Folders
