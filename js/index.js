@@ -42,6 +42,19 @@ let score = 0,
   clydeStarted = false,
   gameStarted = false;
 
+const gameFps = 10;
+const gameInterval = 1000 / gameFps;
+let lastGameUpdateTime = 0;
+
+const frameWidth = 15;
+const totalFrames = 4;
+const animationFps = 12; // Sprite switches 12 times per second
+const animationInterval = 1000 / animationFps;
+let currentFrame = 0;
+let lastAnimationTime = 0;
+
+const startingTimestamp = performance.now();
+
 levelData = JSON.parse(JSON.stringify(levelsData.level1));
 gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
 cruiseElroyTrigger = levelData.cruiseElroyTrigger;
@@ -55,11 +68,24 @@ bonusPosition = JSON.parse(JSON.stringify(levelData.bonusInfo.location));
 bonus = levelData.bonusInfo.type;
 
 // functions
-const gameLoop = () => {
+const gameLoop = (timestamp) => {
+  requestAnimationFrame(gameLoop);
+
   if (!gameStarted) {
     return;
   }
+
+  if (!lastGameUpdateTime) lastGameUpdateTime = timestamp;
+
+  const elapsedSinceLastTick = timestamp - lastGameUpdateTime;
+
+  if (elapsedSinceLastTick < gameInterval) {
+    return;
+  }
+  lastGameUpdateTime = timestamp - (elapsedSinceLastTick % gameInterval);
+
   checkGameOver();
+  animatePacman(timestamp);
   if (pacmanDirection === 'right') {
     checkTunnelWrapAround(pacmanPosition);
     movePacmanRight(pacmanPosition);
@@ -124,8 +150,7 @@ const gameLoop = () => {
     console.log('Game Over!');
     return;
   }
-
-  setTimeout(gameLoop, 100);
+  requestAnimationFrame(gameLoop);
 };
 
 const checkGameOver = () => {
@@ -308,6 +333,18 @@ const checkGhostCollision = () => {
       pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
       pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
     }
+  }
+};
+
+const animatePacman = (timestamp) => {
+  if (!lastAnimationTime) lastAnimationTime = timestamp;
+  const deltaTime = timestamp - lastAnimationTime;
+
+  if (deltaTime >= animationInterval) {
+    currentFrame = (currentFrame + 1) % totalFrames;
+    const positionX = -(currentFrame * frameWidth);
+    pacman.style.backgroundPosition = `${positionX}px 0px`;
+    lastAnimationTime = timestamp - (deltaTime % animationInterval);
   }
 };
 
@@ -793,7 +830,6 @@ const moveClyde = () => {
   }
 
   switch (clydeDirection) {
-
     case 'up':
       clyde.style.backgroundImage =
         'url(../assets/characterSprites/clyde/clyde_up.svg )';
@@ -967,7 +1003,7 @@ document.addEventListener('keydown', (event) => {
         gameStarted = true;
         gameOver = false;
         gameStatusEl.textContent = '';
-        setTimeout(gameLoop, 100);
+        setTimeout(gameLoop(startingTimestamp), 100);
         gameStartPlayerPlacement();
       } else {
         gameStarted = false;
