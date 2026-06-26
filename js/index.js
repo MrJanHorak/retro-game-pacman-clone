@@ -1,15 +1,9 @@
 // import of game assests (sounds, images, etc. if needed)
-import { levelsData } from "../data/levels.js";
-console.log("levelsData: ", levelsData);
+import { levelsData } from '../data/levels.js';
+console.log('levelsData: ', levelsData);
 
 // initial variables for game state
-let score = 0,
-  highScore = 0,
-  lives = 6,
-  isScatterMode = false;
-
 let gameOver,
-  gameStarted,
   level,
   player,
   bonus,
@@ -39,15 +33,18 @@ let gameOver,
   inkyDirectionLast,
   clydeDirectionLast;
 
-let pinkyStarted = false,
+let score = 0,
+  highScore = 0,
+  lives = 6,
+  isScatterMode = false,
+  pinkyStarted = false,
   inkyStarted = false,
-  clydeStarted = false;
-gameStarted = false;
+  clydeStarted = false,
+  gameStarted = false;
 
 levelData = JSON.parse(JSON.stringify(levelsData.level1));
 gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
 cruiseElroyTrigger = levelData.cruiseElroyTrigger;
-// lives = levelData.lives;
 
 pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
 blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
@@ -63,26 +60,26 @@ const gameLoop = () => {
     return;
   }
   checkGameOver();
-  if (pacmanDirection === "right") {
+  if (pacmanDirection === 'right') {
     checkTunnelWrapAround(pacmanPosition);
     movePacmanRight(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
     checkGhostCollision();
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
-    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
     moveBlinky();
     movePinky();
     moveInky();
     moveClyde();
-  } else if (pacmanDirection === "left") {
+  } else if (pacmanDirection === 'left') {
     checkTunnelWrapAround(pacmanPosition);
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
-    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
     checkGhostCollision();
     movePacmanLeft(pacmanPosition);
     chompPellet(pacmanPosition);
@@ -91,12 +88,12 @@ const gameLoop = () => {
     movePinky();
     moveInky();
     moveClyde();
-  } else if (pacmanDirection === "up") {
+  } else if (pacmanDirection === 'up') {
     checkTunnelWrapAround(pacmanPosition);
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
-    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
     movePacmanUp(pacmanPosition);
     chompPellet(pacmanPosition);
     chompPowerPellet(pacmanPosition);
@@ -105,12 +102,12 @@ const gameLoop = () => {
     movePinky();
     moveInky();
     moveClyde();
-  } else if (pacmanDirection === "down") {
+  } else if (pacmanDirection === 'down') {
     checkTunnelWrapAround(pacmanPosition);
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, "blinky");
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, "pinky");
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, "inky");
-    checkGhostTunnelReverse(clydePosition, clydeDirection, "clyde");
+    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
     checkGhostCollision();
     movePacmanDown(pacmanPosition);
     chompPellet(pacmanPosition);
@@ -122,9 +119,9 @@ const gameLoop = () => {
   }
 
   if (gameOver) {
-    gameStatusEl.textContent = "Game Over!";
+    gameStatusEl.textContent = 'Game Over!';
     gameStarted = false;
-    console.log("Game Over!");
+    console.log('Game Over!');
     return;
   }
 
@@ -152,7 +149,7 @@ const gameStartPlayerPlacement = () => {
   pelletCount = 0;
   ghostCount = 0;
   gameOver = false;
-  pacmanDirection = "right";
+  pacmanDirection = 'right';
   score = 0;
   levelData = JSON.parse(JSON.stringify(levelsData.level1));
   gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
@@ -160,15 +157,15 @@ const gameStartPlayerPlacement = () => {
   levelsData.level1.gameGrid.forEach((row, rowIndex) => {
     row.forEach((cell, cellIndex) => {
       if (cell === 80) {
-        const cellEl = document.createElement("div");
-        cellEl.classList.add("pellet");
+        const cellEl = document.createElement('div');
+        cellEl.classList.add('pellet');
         cellEl.style.gridColumnStart = `${cellIndex + 1}`;
         cellEl.style.gridRowStart = `${rowIndex + 1}`;
         gameGrid.appendChild(cellEl);
       }
       if (cell === 81) {
-        const cellEl = document.createElement("div");
-        cellEl.classList.add("power-pellet");
+        const cellEl = document.createElement('div');
+        cellEl.classList.add('power-pellet');
         cellEl.style.gridColumnStart = `${cellIndex + 1}`;
         cellEl.style.gridRowStart = `${rowIndex + 1}`;
         gameGrid.appendChild(cellEl);
@@ -216,7 +213,7 @@ const chompPellet = (pacmanPosition) => {
       .querySelector(
         `.pellet[style="grid-column-start: ${pacmanPosition[0] + 1}; grid-row-start: ${pacmanPosition[1] + 1};"]`,
       )
-      .classList.remove("pellet");
+      .classList.remove('pellet');
     pelletCount += 1;
     score += 10;
     updateScore();
@@ -225,13 +222,13 @@ const chompPellet = (pacmanPosition) => {
 
 const chompPowerPellet = (pacmanPosition) => {
   if (gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 81) {
-    console.log("power pellet collected");
+    console.log('power pellet collected');
     gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0;
     const powerPelletEl = document
       .querySelector(
         `.power-pellet[style="grid-column-start: ${pacmanPosition[0] + 1}; grid-row-start: ${pacmanPosition[1] + 1};"]`,
       )
-      .classList.remove("power-pellet");
+      .classList.remove('power-pellet');
     pelletCount += 1;
     score += 50;
     updateScore();
@@ -317,13 +314,13 @@ const checkGhostCollision = () => {
 const movePacmanRight = (pacmanPosition) => {
   pacmanPosition[0] += 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[0] -= 1;
     return;
   }
   pacman.style.backgroundImage =
-    "url(../assets/characterSprites/pacman/pacman_right.svg )";
+    'url(../assets/characterSprites/pacman/pacman_right.svg )';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
@@ -331,13 +328,13 @@ const movePacmanRight = (pacmanPosition) => {
 const movePacmanLeft = (pacmanPosition) => {
   pacmanPosition[0] -= 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[0] += 1;
     return;
   }
   pacman.style.backgroundImage =
-    "url(../assets/characterSprites/pacman/pacman_left.svg )";
+    'url(../assets/characterSprites/pacman/pacman_left.svg )';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
@@ -345,13 +342,13 @@ const movePacmanLeft = (pacmanPosition) => {
 const movePacmanUp = (pacmanPosition) => {
   pacmanPosition[1] -= 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[1] += 1;
     return;
   }
   pacman.style.backgroundImage =
-    "url(../assets/characterSprites/pacman/pacman_up.svg )";
+    'url(../assets/characterSprites/pacman/pacman_up.svg )';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
@@ -359,60 +356,67 @@ const movePacmanUp = (pacmanPosition) => {
 const movePacmanDown = (pacmanPosition) => {
   pacmanPosition[1] += 1;
   if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], "pacman")
+    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[1] -= 1;
     return;
   }
   pacman.style.backgroundImage =
-    "url(../assets/characterSprites/pacman/pacman_down.svg )";
+    'url(../assets/characterSprites/pacman/pacman_down.svg )';
+  pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+  pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+};
+
+const pacmanDeath = () => {
+  pacman.style.backgroundImage =
+    'url(../assets/characterSprites/pacman/pacman_death.svg)';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 };
 
 const checkTunnelWrapAround = (pacmanPosition) => {
-  if (pacmanPosition[0] <= 0 && pacmanDirection === "left") {
+  if (pacmanPosition[0] <= 0 && pacmanDirection === 'left') {
     pacmanPosition[0] = 28;
-  } else if (pacmanPosition[0] >= 27 && pacmanDirection === "right") {
+  } else if (pacmanPosition[0] >= 27 && pacmanDirection === 'right') {
     pacmanPosition[0] = -1;
   }
 
-  if (pacmanPosition[1] === 0 && pacmanDirection === "up") {
+  if (pacmanPosition[1] === 0 && pacmanDirection === 'up') {
     pacmanPosition[1] = 31;
-  } else if (pacmanPosition[1] === 30 && pacmanDirection === "down") {
+  } else if (pacmanPosition[1] === 30 && pacmanDirection === 'down') {
     pacmanPosition[1] = -1;
   }
 };
 
 const checkGhostTunnelReverse = (ghostPosition, ghostDirection, ghostName) => {
-  if (ghostPosition[0] <= 0 && ghostDirection === "left") {
+  if (ghostPosition[0] <= 0 && ghostDirection === 'left') {
     ghostPosition[0] = 0;
-    ghostDirection = "right";
-  } else if (ghostPosition[0] >= 27 && ghostDirection === "right") {
+    ghostDirection = 'right';
+  } else if (ghostPosition[0] >= 27 && ghostDirection === 'right') {
     ghostPosition[0] = 27;
-    ghostDirection = "left";
+    ghostDirection = 'left';
   }
-  if (ghostName === "blinky") {
+  if (ghostName === 'blinky') {
     blinkyDirection = ghostDirection;
-  } else if (ghostName === "pinky") {
+  } else if (ghostName === 'pinky') {
     pinkyDirection = ghostDirection;
-  } else if (ghostName === "inky") {
+  } else if (ghostName === 'inky') {
     inkyDirection = ghostDirection;
-  } else if (ghostName === "clyde") {
+  } else if (ghostName === 'clyde') {
     clydeDirection = ghostDirection;
   }
 };
 
 const reverseGhostDirection = (ghostDirection) => {
   switch (ghostDirection) {
-    case "up":
-      return "down";
-    case "down":
-      return "up";
-    case "left":
-      return "right";
-    case "right":
-      return "left";
+    case 'up':
+      return 'down';
+    case 'down':
+      return 'up';
+    case 'left':
+      return 'right';
+    case 'right':
+      return 'left';
   }
 };
 
@@ -422,16 +426,16 @@ const activateScatterMode = () => {
   reverseGhostDirection(pinkyDirection);
   reverseGhostDirection(inkyDirection);
   reverseGhostDirection(clydeDirection);
-  blinky.classList.add("scared-ghost");
-  pinky.classList.add("scared-ghost");
-  inky.classList.add("scared-ghost");
-  clyde.classList.add("scared-ghost");
+  blinky.classList.add('scared-ghost');
+  pinky.classList.add('scared-ghost');
+  inky.classList.add('scared-ghost');
+  clyde.classList.add('scared-ghost');
   setTimeout(() => {
     isScatterMode = false;
-    blinky.classList.remove("scared-ghost");
-    pinky.classList.remove("scared-ghost");
-    inky.classList.remove("scared-ghost");
-    clyde.classList.remove("scared-ghost");
+    blinky.classList.remove('scared-ghost');
+    pinky.classList.remove('scared-ghost');
+    inky.classList.remove('scared-ghost');
+    clyde.classList.remove('scared-ghost');
   }, 8000);
 };
 
@@ -458,13 +462,13 @@ const determineShortestDistance = (
 
   switch (minDistance) {
     case distanceUp:
-      return "up";
+      return 'up';
     case distanceLeft:
-      return "left";
+      return 'left';
     case distanceDown:
-      return "down";
+      return 'down';
     case distanceRight:
-      return "right";
+      return 'right';
   }
 };
 
@@ -477,7 +481,7 @@ const ghostInBounds = (ghostPosition) => {
 const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   if (
     !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
-    ghostDirectionLast !== "down"
+    ghostDirectionLast !== 'down'
   ) {
     distanceUp = calculateGhostPacmanDistance(
       [ghostPosition[0], ghostPosition[1] - 1],
@@ -489,7 +493,7 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   if (
     ghostInBounds([ghostPosition[0] - 1, ghostPosition[1]]) &&
     !playerWallColisionDetection(ghostPosition[0] - 1, ghostPosition[1]) &&
-    ghostDirectionLast !== "right"
+    ghostDirectionLast !== 'right'
   ) {
     distanceLeft = calculateGhostPacmanDistance(
       [ghostPosition[0] - 1, ghostPosition[1]],
@@ -500,7 +504,7 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   }
   if (
     !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] + 1) &&
-    ghostDirectionLast !== "up"
+    ghostDirectionLast !== 'up'
   ) {
     distanceDown = calculateGhostPacmanDistance(
       [ghostPosition[0], ghostPosition[1] + 1],
@@ -511,7 +515,7 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   }
   if (
     !playerWallColisionDetection(ghostPosition[0] + 1, ghostPosition[1]) &&
-    ghostDirectionLast !== "left"
+    ghostDirectionLast !== 'left'
   ) {
     distanceRight = calculateGhostPacmanDistance(
       [ghostPosition[0] + 1, ghostPosition[1]],
@@ -532,12 +536,12 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
 };
 
 const slowGhost = (ms) => {
-  console.log("slowing ghost");
+  console.log('slowing ghost');
   return new Promise((resolve) =>
     setTimeout(
       resolve,
       ((ms) => {
-        console.log("ghost should be slowed now");
+        console.log('ghost should be slowed now');
         resolve();
       })(),
     ),
@@ -558,16 +562,32 @@ const moveBlinky = () => {
     blinkyDirection = moveGhost(blinkyPosition, [27, 0], blinkyDirectionLast);
   }
   switch (blinkyDirection) {
-    case "up":
+    case 'up':
       blinkyPosition[1] -= 1;
+      blinky.style.backgroundImage =
+        'url(../assets/characterSprites/blinky/blinky_up.svg )';
+      blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
+      blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       break;
-    case "down":
+    case 'down':
       blinkyPosition[1] += 1;
+      blinky.style.backgroundImage =
+        'url(../assets/characterSprites/blinky/blinky_down.svg )';
+      blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
+      blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       break;
-    case "left":
+    case 'left':
+      blinky.style.backgroundImage =
+        'url(../assets/characterSprites/blinky/blinky_left.svg )';
+      blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
+      blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       blinkyPosition[0] -= 1;
       break;
-    case "right":
+    case 'right':
+      blinky.style.backgroundImage =
+        'url(../assets/characterSprites/blinky/blinky_right.svg )';
+      blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
+      blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       blinkyPosition[0] += 1;
       break;
   }
@@ -595,16 +615,16 @@ const movePinky = () => {
   }
 
   switch (pacmanDirection) {
-    case "up":
+    case 'up':
       pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] - 4];
       break;
-    case "down":
+    case 'down':
       pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] + 4];
       break;
-    case "left":
+    case 'left':
       pinkyTargetCell = [pacmanPosition[0] - 4, pacmanPosition[1]];
       break;
-    case "right":
+    case 'right':
       pinkyTargetCell = [pacmanPosition[0] + 4, pacmanPosition[1]];
       break;
   }
@@ -620,16 +640,32 @@ const movePinky = () => {
   }
 
   switch (pinkyDirection) {
-    case "up":
+    case 'up':
+      pinky.style.backgroundImage =
+        'url(../assets/characterSprites/pinky/pinky_up.svg )';
+      pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+      pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[1] -= 1;
       break;
-    case "down":
+    case 'down':
+      pinky.style.backgroundImage =
+        'url(../assets/characterSprites/pinky/pinky_down.svg )';
+      pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+      pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[1] += 1;
       break;
-    case "left":
+    case 'left':
+      pinky.style.backgroundImage =
+        'url(../assets/characterSprites/pinky/pinky_left.svg )';
+      pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+      pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[0] -= 1;
       break;
-    case "right":
+    case 'right':
+      pinky.style.backgroundImage =
+        'url(../assets/characterSprites/pinky/pinky_right.svg )';
+      pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+      pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[0] += 1;
       break;
   }
@@ -657,16 +693,16 @@ const moveInky = () => {
   }
 
   switch (pacmanDirection) {
-    case "up":
+    case 'up':
       cellTwoAhead = [pacmanPosition[0], pacmanPosition[1] - 2];
       break;
-    case "down":
+    case 'down':
       cellTwoAhead = [pacmanPosition[0], pacmanPosition[1] + 2];
       break;
-    case "left":
+    case 'left':
       cellTwoAhead = [pacmanPosition[0] - 2, pacmanPosition[1]];
       break;
-    case "right":
+    case 'right':
       cellTwoAhead = [pacmanPosition[0] + 2, pacmanPosition[1]];
       break;
   }
@@ -683,16 +719,32 @@ const moveInky = () => {
   }
 
   switch (inkyDirection) {
-    case "up":
+    case 'up':
+      inky.style.backgroundImage =
+        'url(../assets/characterSprites/inky/inky_up.svg )';
+      inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
+      inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[1] -= 1;
       break;
-    case "down":
+    case 'down':
+      inky.style.backgroundImage =
+        'url(../assets/characterSprites/inky/inky_down.svg )';
+      inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
+      inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[1] += 1;
       break;
-    case "left":
+    case 'left':
+      inky.style.backgroundImage =
+        'url(../assets/characterSprites/inky/inky_left.svg )';
+      inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
+      inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[0] -= 1;
       break;
-    case "right":
+    case 'right':
+      inky.style.backgroundImage =
+        'url(../assets/characterSprites/inky/inky_right.svg )';
+      inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
+      inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[0] += 1;
       break;
   }
@@ -741,16 +793,33 @@ const moveClyde = () => {
   }
 
   switch (clydeDirection) {
-    case "up":
+
+    case 'up':
+      clyde.style.backgroundImage =
+        'url(../assets/characterSprites/clyde/clyde_up.svg )';
+      clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
+      clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[1] -= 1;
       break;
-    case "down":
+    case 'down':
+      clyde.style.backgroundImage =
+        'url(../assets/characterSprites/clyde/clyde_down.svg )';
+      clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
+      clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[1] += 1;
       break;
-    case "left":
+    case 'left':
+      clyde.style.backgroundImage =
+        'url(../assets/characterSprites/clyde/clyde_left.svg )';
+      clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
+      clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[0] -= 1;
       break;
-    case "right":
+    case 'right':
+      clyde.style.backgroundImage =
+        'url(../assets/characterSprites/clyde/clyde_right.svg )';
+      clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
+      clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[0] += 1;
       break;
   }
@@ -764,168 +833,147 @@ const moveClyde = () => {
 };
 
 // Cached DOM elements
-const body = document.querySelector("body");
+const body = document.querySelector('body');
 
 // create DOM elements for game play
-const gameContainer = document.createElement("div");
-gameContainer.classList.add("game-container");
+const gameContainer = document.createElement('div');
+gameContainer.classList.add('game-container');
 body.appendChild(gameContainer);
 
-const topInfoBar = document.createElement("div");
-topInfoBar.classList.add("top-info-bar");
+const topInfoBar = document.createElement('div');
+topInfoBar.classList.add('top-info-bar');
 gameContainer.appendChild(topInfoBar);
 
-const oneUpEl = document.createElement("div");
-oneUpEl.classList.add("oneUp", "playerInfo");
-oneUpEl.textContent = "1UP";
+const oneUpEl = document.createElement('div');
+oneUpEl.classList.add('oneUp', 'playerInfo');
+oneUpEl.textContent = '1UP';
 topInfoBar.appendChild(oneUpEl);
 
-const scoreOneEl = document.createElement("div");
-scoreOneEl.classList.add("score");
+const scoreOneEl = document.createElement('div');
+scoreOneEl.classList.add('score');
 scoreOneEl.textContent = `${score}`;
 oneUpEl.appendChild(scoreOneEl);
 
-const highScoreLabelEl = document.createElement("div");
-highScoreLabelEl.classList.add("high-score");
+const highScoreLabelEl = document.createElement('div');
+highScoreLabelEl.classList.add('high-score');
 highScoreLabelEl.textContent = `High Score`;
 topInfoBar.appendChild(highScoreLabelEl);
 
-const highScoreEl = document.createElement("div");
-highScoreEl.classList.add("high-score-value", "score");
+const highScoreEl = document.createElement('div');
+highScoreEl.classList.add('high-score-value', 'score');
 highScoreEl.textContent = `${highScore}`;
 highScoreLabelEl.appendChild(highScoreEl);
 
-const twoUpEl = document.createElement("div");
-twoUpEl.classList.add("twoUp", "playerInfo");
-twoUpEl.textContent = "2UP";
+const twoUpEl = document.createElement('div');
+twoUpEl.classList.add('twoUp', 'playerInfo');
+twoUpEl.textContent = '2UP';
 topInfoBar.appendChild(twoUpEl);
 
-const scoreTwoEl = document.createElement("div");
-scoreTwoEl.classList.add("score");
+const scoreTwoEl = document.createElement('div');
+scoreTwoEl.classList.add('score');
 scoreTwoEl.textContent = `${score}`;
 twoUpEl.appendChild(scoreTwoEl);
 
-const gameCanvas = document.createElement("div");
-gameCanvas.classList.add("game-canvas");
+const gameCanvas = document.createElement('div');
+gameCanvas.classList.add('game-canvas');
 gameContainer.appendChild(gameCanvas);
 
-const gameGrid = document.createElement("div");
-gameGrid.classList.add("game-grid");
+const gameGrid = document.createElement('div');
+gameGrid.classList.add('game-grid');
 gameCanvas.appendChild(gameGrid);
 
-const bottomInfoBar = document.createElement("div");
-bottomInfoBar.classList.add("bottom-info-bar");
+const bottomInfoBar = document.createElement('div');
+bottomInfoBar.classList.add('bottom-info-bar');
 gameContainer.appendChild(bottomInfoBar);
 
-const livesEl = document.createElement("div");
-livesEl.classList.add("lives");
+const livesEl = document.createElement('div');
+livesEl.classList.add('lives');
 livesEl.textContent = `Lives: ${lives}`;
 bottomInfoBar.appendChild(livesEl);
 
-const bonusEl = document.createElement("div");
-bonusEl.classList.add("bonus");
+const bonusEl = document.createElement('div');
+bonusEl.classList.add('bonus');
 bonusEl.textContent = `Bonus: ${bonus}`;
 bottomInfoBar.appendChild(bonusEl);
 
-const gameStatusEl = document.createElement("div");
-gameStatusEl.classList.add("game-status");
-gameStatusEl.textContent = "Start Game!";
+const gameStatusEl = document.createElement('div');
+gameStatusEl.classList.add('game-status');
+gameStatusEl.textContent = 'Start Game!';
 gameContainer.appendChild(gameStatusEl);
 
-// levelsData.level1.gameGrid.forEach((row, rowIndex) => {
-//   row.forEach((cell, cellIndex) => {
-//     if (cell === 80) {
-//       const cellEl = document.createElement("div");
-//       cellEl.classList.add("pellet");
-//       cellEl.style.gridColumnStart = `${cellIndex + 1}`;
-//       cellEl.style.gridRowStart = `${rowIndex + 1}`;
-//       gameGrid.appendChild(cellEl);
-//     }
-//     if (cell === 81) {
-//       const cellEl = document.createElement("div");
-//       cellEl.classList.add("power-pellet");
-//       cellEl.style.gridColumnStart = `${cellIndex + 1}`;
-//       cellEl.style.gridRowStart = `${rowIndex + 1}`;
-//       gameGrid.appendChild(cellEl);
-//     }
-//   });
-// });
-
-const pacman = document.createElement("div");
-pacman.classList.add("pacman");
+const pacman = document.createElement('div');
+pacman.classList.add('pacman');
 gameGrid.appendChild(pacman);
 
 pacman.style.gridColumnStart = `${levelData.playerStart[0] + 1}`;
 pacman.style.gridRowStart = `${levelData.playerStart[1] + 1}`;
 
-const blinky = document.createElement("div");
-blinky.classList.add("blinky");
+const blinky = document.createElement('div');
+blinky.classList.add('blinky');
 gameGrid.appendChild(blinky);
 
 blinky.style.gridColumnStart = `${levelData.blinkyStart[0] + 1}`;
 blinky.style.gridRowStart = `${levelData.blinkyStart[1] + 1}`;
 
-const pinky = document.createElement("div");
-pinky.classList.add("pinky");
+const pinky = document.createElement('div');
+pinky.classList.add('pinky');
 gameGrid.appendChild(pinky);
 
 pinky.style.gridColumnStart = `${levelData.pinkyStart[0] + 1}`;
 pinky.style.gridRowStart = `${levelData.pinkyStart[1] + 1}`;
 
-const inky = document.createElement("div");
-inky.classList.add("inky");
+const inky = document.createElement('div');
+inky.classList.add('inky');
 gameGrid.appendChild(inky);
 
 inky.style.gridColumnStart = `${levelData.inkyStart[0] + 1}`;
 inky.style.gridRowStart = `${levelData.inkyStart[1] + 1}`;
 
-const clyde = document.createElement("div");
-clyde.classList.add("clyde");
+const clyde = document.createElement('div');
+clyde.classList.add('clyde');
 gameGrid.appendChild(clyde);
 
 clyde.style.gridColumnStart = `${levelData.clydeStart[0] + 1}`;
 clyde.style.gridRowStart = `${levelData.clydeStart[1] + 1}`;
 
 // event listeners for WASD and arrow keys for player movement
-document.addEventListener("keydown", (event) => {
+document.addEventListener('keydown', (event) => {
   switch (event.key) {
-    case "ArrowUp":
-    case "w":
-    case "W":
-      pacmanDirection = "up";
+    case 'ArrowUp':
+    case 'w':
+    case 'W':
+      pacmanDirection = 'up';
       break;
-    case "ArrowDown":
-    case "s":
-    case "S":
-      pacmanDirection = "down";
+    case 'ArrowDown':
+    case 's':
+    case 'S':
+      pacmanDirection = 'down';
       break;
-    case "ArrowLeft":
-    case "a":
-    case "A":
-      pacmanDirection = "left";
+    case 'ArrowLeft':
+    case 'a':
+    case 'A':
+      pacmanDirection = 'left';
       break;
-    case "ArrowRight":
-    case "d":
-    case "D":
-      pacmanDirection = "right";
+    case 'ArrowRight':
+    case 'd':
+    case 'D':
+      pacmanDirection = 'right';
       break;
-    case "Space":
-    case " ":
+    case 'Space':
+    case ' ':
       if (!gameStarted || gameOver) {
         lives = 6;
         livesEl.textContent = `Lives: ${lives}`;
         gameStarted = true;
         gameOver = false;
-        gameStatusEl.textContent = "";
+        gameStatusEl.textContent = '';
         setTimeout(gameLoop, 100);
         gameStartPlayerPlacement();
       } else {
         gameStarted = false;
-        gameStatusEl.textContent = "Game Paused";
+        gameStatusEl.textContent = 'Game Paused';
       }
 
       break;
   }
 });
-
-
