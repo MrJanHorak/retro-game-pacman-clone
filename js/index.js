@@ -48,10 +48,14 @@ let lastGameUpdateTime = 0;
 
 const frameWidth = 15;
 const totalFrames = 4;
-const animationFps = 12; // Sprite switches 12 times per second
+const totalGhostFrames = 2;
+const ghostFrameWidth = 16;
+const animationFps = 12;
 const animationInterval = 1000 / animationFps;
 let currentFrame = 0;
 let lastAnimationTime = 0;
+let ghostCurrentFrame = 0;
+let lastGhostAnimationTime = 0;
 
 const startingTimestamp = performance.now();
 
@@ -86,6 +90,7 @@ const gameLoop = (timestamp) => {
 
   checkGameOver();
   animatePacman(timestamp);
+  animateGhosts(timestamp);
   if (pacmanDirection === 'right') {
     checkTunnelWrapAround(pacmanPosition);
     movePacmanRight(pacmanPosition);
@@ -345,6 +350,23 @@ const animatePacman = (timestamp) => {
     const positionX = -(currentFrame * frameWidth);
     pacman.style.backgroundPosition = `${positionX}px 0px`;
     lastAnimationTime = timestamp - (deltaTime % animationInterval);
+  }
+};
+
+const animateGhosts = (timestamp) => {
+  if (!lastGhostAnimationTime) lastGhostAnimationTime = timestamp;
+  const deltaTime = timestamp - lastGhostAnimationTime;
+
+  if (deltaTime >= animationInterval) {
+    ghostCurrentFrame = (ghostCurrentFrame + 1) % totalGhostFrames;
+    const positionX = -(ghostCurrentFrame * ghostFrameWidth);
+
+    blinky.style.backgroundPosition = `${positionX}px 0px`;
+    pinky.style.backgroundPosition = `${positionX}px 0px`;
+    inky.style.backgroundPosition = `${positionX}px 0px`;
+    clyde.style.backgroundPosition = `${positionX}px 0px`;
+
+    lastGhostAnimationTime = timestamp - (deltaTime % animationInterval);
   }
 };
 
