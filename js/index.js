@@ -46,15 +46,20 @@ const gameFps = 10;
 const gameInterval = 1000 / gameFps;
 let lastGameUpdateTime = 0;
 
+const GHOST_SPEED_NORMAL = 100;
+const GHOST_SPEED_SLOW = 200;
+
 const frameWidth = 15;
 const totalFrames = 4;
 const totalGhostFrames = 2;
-const ghostFrameWidth = 16;
+const ghostFrameWidth = 15;
 const animationFps = 12;
 const animationInterval = 1000 / animationFps;
 let currentFrame = 0;
 let lastAnimationTime = 0;
 let ghostCurrentFrame = 0;
+let ghostMoveInterval = GHOST_SPEED_NORMAL;
+let lastGhostMoveTime = 0;
 let lastGhostAnimationTime = 0;
 
 const startingTimestamp = performance.now();
@@ -79,83 +84,76 @@ const gameLoop = (timestamp) => {
     return;
   }
 
+  // Initialize anchors
   if (!lastGameUpdateTime) lastGameUpdateTime = timestamp;
+  if (!lastGhostMoveTime) lastGhostMoveTime = timestamp;
 
-  const elapsedSinceLastTick = timestamp - lastGameUpdateTime;
+  // Track elapsed time for both entities separately
+  const elapsedSincePacmanTick = timestamp - lastGameUpdateTime;
+  const elapsedSinceGhostTick = timestamp - lastGhostMoveTime;
 
-  if (elapsedSinceLastTick < gameInterval) {
-    return;
+  if (elapsedSincePacmanTick >= gameInterval) {
+    lastGameUpdateTime = timestamp - (elapsedSincePacmanTick % gameInterval);
+
+    checkGameOver();
+    animatePacman(timestamp);
+    animateGhosts(timestamp); // Keeps ghost legs wiggling smoothly
+
+    checkGameOver();
+    animatePacman(timestamp);
+    animateGhosts(timestamp);
+    if (pacmanDirection === 'right') {
+      checkTunnelWrapAround(pacmanPosition);
+      movePacmanRight(pacmanPosition);
+      chompPellet(pacmanPosition);
+      chompPowerPellet(pacmanPosition);
+      checkGhostCollision();
+    } else if (pacmanDirection === 'left') {
+      checkTunnelWrapAround(pacmanPosition);
+      checkGhostCollision();
+      movePacmanLeft(pacmanPosition);
+      chompPellet(pacmanPosition);
+      chompPowerPellet(pacmanPosition);
+    } else if (pacmanDirection === 'up') {
+      checkTunnelWrapAround(pacmanPosition);
+      movePacmanUp(pacmanPosition);
+      chompPellet(pacmanPosition);
+      chompPowerPellet(pacmanPosition);
+      checkGhostCollision();
+    } else if (pacmanDirection === 'down') {
+      checkTunnelWrapAround(pacmanPosition);
+      checkGhostCollision();
+      movePacmanDown(pacmanPosition);
+      chompPellet(pacmanPosition);
+      chompPowerPellet(pacmanPosition);
+    }
+
+    if (elapsedSinceGhostTick >= ghostMoveInterval) {
+      lastGhostMoveTime =
+        timestamp - (elapsedSinceGhostTick % ghostMoveInterval);
+
+      // Run ghost movement functions inside this block
+      checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
+      checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
+      checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
+      checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
+
+      moveBlinky();
+      movePinky();
+      moveInky();
+      moveClyde();
+
+      checkGhostCollision();
+    }
+
+    if (gameOver) {
+      gameStatusEl.textContent = 'Game Over!';
+      gameStarted = false;
+      console.log('Game Over!');
+      return;
+    }
+    requestAnimationFrame(gameLoop);
   }
-  lastGameUpdateTime = timestamp - (elapsedSinceLastTick % gameInterval);
-
-  checkGameOver();
-  animatePacman(timestamp);
-  animateGhosts(timestamp);
-  if (pacmanDirection === 'right') {
-    checkTunnelWrapAround(pacmanPosition);
-    movePacmanRight(pacmanPosition);
-    chompPellet(pacmanPosition);
-    chompPowerPellet(pacmanPosition);
-    checkGhostCollision();
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
-    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
-    moveBlinky();
-    movePinky();
-    moveInky();
-    moveClyde();
-  } else if (pacmanDirection === 'left') {
-    checkTunnelWrapAround(pacmanPosition);
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
-    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
-    checkGhostCollision();
-    movePacmanLeft(pacmanPosition);
-    chompPellet(pacmanPosition);
-    chompPowerPellet(pacmanPosition);
-    moveBlinky();
-    movePinky();
-    moveInky();
-    moveClyde();
-  } else if (pacmanDirection === 'up') {
-    checkTunnelWrapAround(pacmanPosition);
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
-    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
-    movePacmanUp(pacmanPosition);
-    chompPellet(pacmanPosition);
-    chompPowerPellet(pacmanPosition);
-    checkGhostCollision();
-    moveBlinky();
-    movePinky();
-    moveInky();
-    moveClyde();
-  } else if (pacmanDirection === 'down') {
-    checkTunnelWrapAround(pacmanPosition);
-    checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
-    checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
-    checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
-    checkGhostTunnelReverse(clydePosition, clydeDirection, 'clyde');
-    checkGhostCollision();
-    movePacmanDown(pacmanPosition);
-    chompPellet(pacmanPosition);
-    chompPowerPellet(pacmanPosition);
-    moveBlinky();
-    movePinky();
-    moveInky();
-    moveClyde();
-  }
-
-  if (gameOver) {
-    gameStatusEl.textContent = 'Game Over!';
-    gameStarted = false;
-    console.log('Game Over!');
-    return;
-  }
-  requestAnimationFrame(gameLoop);
 };
 
 const checkGameOver = () => {
@@ -481,6 +479,7 @@ const reverseGhostDirection = (ghostDirection) => {
 
 const activateScatterMode = () => {
   isScatterMode = true;
+  ghostMoveInterval = GHOST_SPEED_SLOW;
   reverseGhostDirection(blinkyDirection);
   reverseGhostDirection(pinkyDirection);
   reverseGhostDirection(inkyDirection);
@@ -495,6 +494,7 @@ const activateScatterMode = () => {
     pinky.classList.remove('scared-ghost');
     inky.classList.remove('scared-ghost');
     clyde.classList.remove('scared-ghost');
+    ghostMoveInterval = GHOST_SPEED_NORMAL;
   }, 8000);
 };
 
