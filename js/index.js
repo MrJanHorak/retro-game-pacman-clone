@@ -484,10 +484,8 @@ const activateScatterMode = () => {
   reverseGhostDirection(pinkyDirection);
   reverseGhostDirection(inkyDirection);
   reverseGhostDirection(clydeDirection);
-  blinky.classList.add('scared-ghost');
-  pinky.classList.add('scared-ghost');
-  inky.classList.add('scared-ghost');
-  clyde.classList.add('scared-ghost');
+ 
+
   setTimeout(() => {
     isScatterMode = false;
     blinky.classList.remove('scared-ghost');
@@ -623,28 +621,48 @@ const moveBlinky = () => {
   switch (blinkyDirection) {
     case 'up':
       blinkyPosition[1] -= 1;
-      blinky.style.backgroundImage =
-        'url(../assets/characterSprites/blinky/blinky_up.svg )';
+      if (isScatterMode) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/blinky/blinky_up.svg )';
+      }
       blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       break;
     case 'down':
       blinkyPosition[1] += 1;
-      blinky.style.backgroundImage =
-        'url(../assets/characterSprites/blinky/blinky_down.svg )';
+      if (isScatterMode) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/blinky/blinky_down.svg )';
+      }
       blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       break;
     case 'left':
-      blinky.style.backgroundImage =
-        'url(../assets/characterSprites/blinky/blinky_left.svg )';
+      if (isScatterMode) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/blinky/blinky_left.svg )';
+      }
       blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       blinkyPosition[0] -= 1;
       break;
     case 'right':
-      blinky.style.backgroundImage =
-        'url(../assets/characterSprites/blinky/blinky_right.svg )';
+      if (isScatterMode) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/blinky/blinky_right.svg )';
+      }
       blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       blinkyPosition[0] += 1;
@@ -700,29 +718,49 @@ const movePinky = () => {
 
   switch (pinkyDirection) {
     case 'up':
-      pinky.style.backgroundImage =
-        'url(../assets/characterSprites/pinky/pinky_up.svg )';
+      if (isScatterMode) {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/pinky/pinky_up.svg )';
+      }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[1] -= 1;
       break;
     case 'down':
-      pinky.style.backgroundImage =
-        'url(../assets/characterSprites/pinky/pinky_down.svg )';
+      if (isScatterMode) {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/pinky/pinky_down.svg )';
+      }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[1] += 1;
       break;
     case 'left':
-      pinky.style.backgroundImage =
-        'url(../assets/characterSprites/pinky/pinky_left.svg )';
+      if (isScatterMode) {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/pinky/pinky_left.svg )';
+      }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[0] -= 1;
       break;
     case 'right':
-      pinky.style.backgroundImage =
-        'url(../assets/characterSprites/pinky/pinky_right.svg )';
+      if (isScatterMode) {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        pinky.style.backgroundImage =
+          'url(../assets/characterSprites/pinky/pinky_right.svg )';
+      }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
       pinkyPosition[0] += 1;
@@ -779,29 +817,49 @@ const moveInky = () => {
 
   switch (inkyDirection) {
     case 'up':
-      inky.style.backgroundImage =
-        'url(../assets/characterSprites/inky/inky_up.svg )';
+      if (isScatterMode) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/inky/inky_up.svg )';
+      }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[1] -= 1;
       break;
     case 'down':
-      inky.style.backgroundImage =
-        'url(../assets/characterSprites/inky/inky_down.svg )';
+      if (isScatterMode) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/inky/inky_down.svg )';
+      }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[1] += 1;
       break;
     case 'left':
-      inky.style.backgroundImage =
-        'url(../assets/characterSprites/inky/inky_left.svg )';
+      if (isScatterMode) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/inky/inky_left.svg )';
+      }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[0] -= 1;
       break;
     case 'right':
-      inky.style.backgroundImage =
-        'url(../assets/characterSprites/inky/inky_right.svg )';
+      if (isScatterMode) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/inky/inky_right.svg )';
+      }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
       inkyPosition[0] += 1;
@@ -853,29 +911,49 @@ const moveClyde = () => {
 
   switch (clydeDirection) {
     case 'up':
-      clyde.style.backgroundImage =
-        'url(../assets/characterSprites/clyde/clyde_up.svg )';
+      if (isScatterMode) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/clyde/clyde_up.svg )';
+      }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[1] -= 1;
       break;
     case 'down':
-      clyde.style.backgroundImage =
-        'url(../assets/characterSprites/clyde/clyde_down.svg )';
+      if (isScatterMode) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/clyde/clyde_down.svg )';
+      }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[1] += 1;
       break;
     case 'left':
-      clyde.style.backgroundImage =
-        'url(../assets/characterSprites/clyde/clyde_left.svg )';
+      if (isScatterMode) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/clyde/clyde_left.svg )';
+      }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[0] -= 1;
       break;
     case 'right':
-      clyde.style.backgroundImage =
-        'url(../assets/characterSprites/clyde/clyde_right.svg )';
+      if (isScatterMode) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/clyde/clyde_right.svg )';
+      }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[0] += 1;
