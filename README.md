@@ -17,15 +17,15 @@ What is working:
 * 'Super-pellets' activate ghost flee behavior.
 * PacMan can chomp the ghosts when they are blue in the scared mode.
 * game over condition is set when PacMan loses all lives.
+* ghost speed to decrease when scared.
+* animation polish of characters.
 
 What still needs to be implemented:
 
 * win condition when all pellets are gone.
 * bonus items
 * Blinky's angry mode
-* ghost speed to decrease when scared.
 * storing/persisting of Hi-Score in local storage.
-* animation polish of characters.
 
 Notes to expand upon:
 * chase behaviors of individual ghosts.
