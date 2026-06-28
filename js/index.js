@@ -35,12 +35,14 @@ let gameOver,
 
 let score = 0,
   highScore = 0,
-  lives = 6,
+  lives = 3,
   isScatterMode = false,
   pinkyStarted = false,
   inkyStarted = false,
   clydeStarted = false,
-  gameStarted = false;
+  gameStarted = false,
+  ghostChomped = 200,
+  pacmanDead = false;
 
 const gameFps = 10;
 const gameInterval = 1000 / gameFps;
@@ -49,12 +51,13 @@ let lastGameUpdateTime = 0;
 const GHOST_SPEED_NORMAL = 100;
 const GHOST_SPEED_SLOW = 200;
 
-const frameWidth = 15;
+const frameWidth = 19;
 const totalFrames = 4;
 const totalGhostFrames = 2;
-const ghostFrameWidth = 15;
+const ghostFrameWidth = 19;
 const animationFps = 12;
 const animationInterval = 1000 / animationFps;
+
 let currentFrame = 0;
 let lastAnimationTime = 0;
 let ghostCurrentFrame = 0;
@@ -149,7 +152,6 @@ const gameLoop = (timestamp) => {
     if (gameOver) {
       gameStatusEl.textContent = 'Game Over!';
       gameStarted = false;
-      console.log('Game Over!');
       return;
     }
     requestAnimationFrame(gameLoop);
@@ -164,6 +166,9 @@ const checkGameOver = () => {
 };
 
 const gameStartPlayerPlacement = () => {
+  livesEl.textContent = `Lives: ${lives}`;
+  gameStatusEl.textContent = '';
+  cruiseElroyTrigger = levelData.cruiseElroyTrigger;
   pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
   blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
   pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
@@ -177,12 +182,14 @@ const gameStartPlayerPlacement = () => {
   pelletCount = 0;
   ghostCount = 0;
   gameOver = false;
+  gameStarted = true;
   pacmanDirection = 'right';
   score = 0;
+  lives = 3;
   levelData = JSON.parse(JSON.stringify(levelsData.level1));
   gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
 
-  levelsData.level1.gameGrid.forEach((row, rowIndex) => {
+  gameGridData.forEach((row, rowIndex) => {
     row.forEach((cell, cellIndex) => {
       if (cell === 80) {
         const cellEl = document.createElement('div');
@@ -250,7 +257,6 @@ const chompPellet = (pacmanPosition) => {
 
 const chompPowerPellet = (pacmanPosition) => {
   if (gameGridData[pacmanPosition[1]][pacmanPosition[0]] === 81) {
-    console.log('power pellet collected');
     gameGridData[pacmanPosition[1]][pacmanPosition[0]] = 0;
     const powerPelletEl = document
       .querySelector(
@@ -270,17 +276,24 @@ const checkGhostCollision = () => {
     pacmanPosition[1] === blinkyPosition[1]
   ) {
     if (isScatterMode) {
-      score += 200;
+      score += ghostChomped;
       updateScore();
       blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
       blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
+      ghostChomped = ghostChomped * 2;
     } else {
       lives -= 1;
-      livesEl.textContent = `Lives: ${lives}`;
-      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+      pacmanDeath();
+      setTimeout(() => {
+        livesEl.textContent = `Lives: ${lives}`;
+        pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+        pacman.classList.remove('pacman-death');
+        pacman.classList.add('pacman');
+        pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+        pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+        pacmanDead = false;
+      }, 1000);
     }
   }
   if (
@@ -342,12 +355,20 @@ const checkGhostCollision = () => {
 const animatePacman = (timestamp) => {
   if (!lastAnimationTime) lastAnimationTime = timestamp;
   const deltaTime = timestamp - lastAnimationTime;
-
-  if (deltaTime >= animationInterval) {
-    currentFrame = (currentFrame + 1) % totalFrames;
-    const positionX = -(currentFrame * frameWidth);
-    pacman.style.backgroundPosition = `${positionX}px 0px`;
-    lastAnimationTime = timestamp - (deltaTime % animationInterval);
+  if (!pacmanDead) {
+    if (deltaTime >= animationInterval) {
+      currentFrame = (currentFrame + 1) % totalFrames;
+      const positionX = -(currentFrame * frameWidth);
+      pacman.style.backgroundPosition = `${positionX}px 0px`;
+      lastAnimationTime = timestamp - (deltaTime % animationInterval);
+    }
+  } else {
+    if (deltaTime >= animationInterval) {
+      currentFrame = (currentFrame + 1) % 12;
+      const positionX = -(currentFrame * frameWidth);
+      pacman.style.backgroundPosition = `${positionX}px 0px`;
+      lastAnimationTime = timestamp - (deltaTime % animationInterval);
+    }
   }
 };
 
@@ -425,6 +446,10 @@ const movePacmanDown = (pacmanPosition) => {
 };
 
 const pacmanDeath = () => {
+  pacmanDead = true;
+  currentFrame = 0;
+  pacman.classList.remove('pacman');
+  pacman.classList.add('pacman-death');
   pacman.style.backgroundImage =
     'url(../assets/characterSprites/pacman/pacman_death.svg)';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
@@ -484,7 +509,6 @@ const activateScatterMode = () => {
   reverseGhostDirection(pinkyDirection);
   reverseGhostDirection(inkyDirection);
   reverseGhostDirection(clydeDirection);
- 
 
   setTimeout(() => {
     isScatterMode = false;
@@ -493,6 +517,7 @@ const activateScatterMode = () => {
     inky.classList.remove('scared-ghost');
     clyde.classList.remove('scared-ghost');
     ghostMoveInterval = GHOST_SPEED_NORMAL;
+    ghostChomped = 200;
   }, 8000);
 };
 
@@ -592,19 +617,6 @@ const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
   );
 };
 
-const slowGhost = (ms) => {
-  console.log('slowing ghost');
-  return new Promise((resolve) =>
-    setTimeout(
-      resolve,
-      ((ms) => {
-        console.log('ghost should be slowed now');
-        resolve();
-      })(),
-    ),
-  );
-};
-
 const moveBlinky = () => {
   if (blinkyDirection !== Infinity || blinkyDirection !== undefined) {
     blinkyDirectionLast = blinkyDirection;
@@ -668,9 +680,7 @@ const moveBlinky = () => {
       blinkyPosition[0] += 1;
       break;
   }
-  if (isScatterMode) {
-    slowGhost(2750);
-  }
+
   blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
   blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
 };
@@ -766,9 +776,7 @@ const movePinky = () => {
       pinkyPosition[0] += 1;
       break;
   }
-  if (isScatterMode) {
-    slowGhost(2750);
-  }
+
   pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
   pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
 };
@@ -866,10 +874,6 @@ const moveInky = () => {
       break;
   }
 
-  if (isScatterMode) {
-    slowGhost(2750);
-  }
-
   inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
   inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
 };
@@ -958,10 +962,6 @@ const moveClyde = () => {
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
       clydePosition[0] += 1;
       break;
-  }
-
-  if (isScatterMode) {
-    slowGhost(2750);
   }
 
   clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
@@ -1098,11 +1098,6 @@ document.addEventListener('keydown', (event) => {
     case 'Space':
     case ' ':
       if (!gameStarted || gameOver) {
-        lives = 6;
-        livesEl.textContent = `Lives: ${lives}`;
-        gameStarted = true;
-        gameOver = false;
-        gameStatusEl.textContent = '';
         setTimeout(gameLoop(startingTimestamp), 100);
         gameStartPlayerPlacement();
       } else {
