@@ -323,7 +323,12 @@ textarea {
   background-image: url('../assets/characterSprites/pacman/pacman_left.svg');
   background-size: 400%;
   background-position: -61px 0px;
-  /* background-color: yellow; */
+}
+
+.pacman-death {
+  background-image: url('../assets/characterSprites/pacman/pacman_left.svg');
+  background-size: 800%;
+  background-position: -61px 0px;
 }
 
 .blinky {
