@@ -100,6 +100,9 @@ bonus = levelData.bonusInfo[level];
 // functions
 const gameLoop = (timestamp) => {
   requestAnimationFrame(gameLoop);
+  if (pacmanDead) {
+    animatePacman(timestamp);
+  }
 
   if (!gameStarted) {
     return;
@@ -255,6 +258,11 @@ const placeBonus = () => {
 };
 
 const resetLevelAfterDeath = () => {
+  pacman.classList.remove('pacman-death');
+  pacman.classList.add('pacman');
+  pacmanDead = false;
+  pacman.style.backgroundImage =
+    'url(../assets/characterSprites/pacman/pacman_left.svg)';
   pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
   blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
   pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
@@ -486,12 +494,6 @@ const checkGhostCollision = () => {
           for (let i = 0; i < lives; i++) {
             livesEl.appendChild(addLifeImage());
           }
-          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-          pacman.classList.remove('pacman-death');
-          pacman.classList.add('pacman');
-          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
-          pacmanDead = false;
         }, 1000);
       }
     }
@@ -585,15 +587,15 @@ const animatePacman = (timestamp) => {
   if (!pacmanDead) {
     if (deltaTime >= animationInterval) {
       currentFrame = (currentFrame + 1) % totalFrames;
-      const positionX = -(currentFrame * frameWidth);
-      pacman.style.backgroundPosition = `${positionX}px 0px`;
+      const positionX = (currentFrame / (totalFrames - 1)) * 100;
+      pacman.style.backgroundPosition = `${positionX}% 0%`;
       lastAnimationTime = timestamp - (deltaTime % animationInterval);
     }
   } else {
     if (deltaTime >= animationInterval) {
       currentFrame = (currentFrame + 1) % 12;
-      const positionX = -(currentFrame * frameWidth);
-      pacman.style.backgroundPosition = `${positionX}px 0px`;
+      const positionX = (currentFrame / (12 - 1)) * 100;
+      pacman.style.backgroundPosition = `${positionX}% 0%`;
       lastAnimationTime = timestamp - (deltaTime % animationInterval);
     }
   }
@@ -604,13 +606,14 @@ const animateGhosts = (timestamp) => {
   const deltaTime = timestamp - lastGhostAnimationTime;
 
   if (deltaTime >= animationInterval) {
-    ghostCurrentFrame = (ghostCurrentFrame + 1) % totalGhostFrames;
+    ghostCurrentFrame =
+      ((ghostCurrentFrame + 1) % (totalGhostFrames - 1)) * 100;
     const positionX = -(ghostCurrentFrame * ghostFrameWidth);
 
-    blinky.style.backgroundPosition = `${positionX}px 0px`;
-    pinky.style.backgroundPosition = `${positionX}px 0px`;
-    inky.style.backgroundPosition = `${positionX}px 0px`;
-    clyde.style.backgroundPosition = `${positionX}px 0px`;
+    blinky.style.backgroundPosition = `${positionX}% 0%`;
+    pinky.style.backgroundPosition = `${positionX}% 0%`;
+    inky.style.backgroundPosition = `${positionX}% 0%`;
+    clyde.style.backgroundPosition = `${positionX}% 0%`;
 
     lastGhostAnimationTime = timestamp - (deltaTime % animationInterval);
   }
@@ -692,12 +695,10 @@ const pacmanDeath = () => {
   pacman.classList.add('pacman-death');
   pacman.style.backgroundImage =
     'url(../assets/characterSprites/pacman/pacman_death.svg)';
-  pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-  pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
 
   setTimeout(() => {
     resetLevelAfterDeath();
-  }, 2000);
+  }, 1000);
 };
 
 const checkTunnelWrapAround = (pacmanPosition) => {
