@@ -1,6 +1,5 @@
 // import of game assests (sounds, images, etc. if needed)
 import { levelsData } from '../data/levels.js';
-console.log('levelsData: ', levelsData);
 
 // initial variables for game state
 let gameOver,
@@ -42,11 +41,11 @@ let score = 0,
   clydeStarted = false,
   gameStarted = false,
   ghostChomped = 200,
-  pacmanDead = false;
+  pacmanDead = false,
+  lastGameUpdateTime = 0;
 
 const gameFps = 10;
 const gameInterval = 1000 / gameFps;
-let lastGameUpdateTime = 0;
 
 const GHOST_SPEED_NORMAL = 100;
 const GHOST_SPEED_SLOW = 200;
@@ -55,6 +54,7 @@ const frameWidth = 19;
 const totalFrames = 4;
 const totalGhostFrames = 2;
 const ghostFrameWidth = 19;
+
 const animationFps = 12;
 const animationInterval = 1000 / animationFps;
 
@@ -66,6 +66,17 @@ let lastGhostMoveTime = 0;
 let lastGhostAnimationTime = 0;
 
 const startingTimestamp = performance.now();
+
+const bonusAssets = {
+  'apple':'../assets/bonusSprites/apple.svg',
+  'bell':'../assets/bonusSprites/bell.svg',
+  'cherry':'../assets/bonusSprites/cherry.svg',
+  'galaxian':'../assets/bonusSprites/galaxian.svg',
+  'key':'../assets/bonusSprites/key.svg',
+  'melon':'../assets/bonusSprites/melon.svg',
+  'orange':'../assets/bonusSprites/orange.svg',
+  'strawberry':'../assets/bonusSprites/strawberry.svg',
+}
 
 levelData = JSON.parse(JSON.stringify(levelsData.level1));
 gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
@@ -165,6 +176,14 @@ const addLifeImage = () => {
   pacLifeEl.width = 22;
   return pacLifeEl;
 };
+
+const addBonusImage = () => {
+  const bonusImageEl = document.createElement('img');
+  bonusImageEl.classList.add('bonus-image');
+  bonusImageEl.src = bonusAssets[bonus]
+  bonusImageEl.width = 22;
+  return bonusImageEl;
+}
 
 const checkGameOver = () => {
   if (lives <= 0) {
@@ -1082,8 +1101,10 @@ bottomInfoBar.appendChild(livesEl);
 
 const bonusEl = document.createElement('div');
 bonusEl.classList.add('bonus');
-bonusEl.textContent = `Bonus: ${bonus}`;
+bonusEl.textContent = `Bonus:`;
+bonusEl.appendChild(addBonusImage())
 bottomInfoBar.appendChild(bonusEl);
+
 
 const gameStatusEl = document.createElement('div');
 gameStatusEl.classList.add('game-status');
