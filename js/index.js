@@ -166,7 +166,7 @@ const checkGameOver = () => {
 };
 
 const gameStartPlayerPlacement = () => {
-  livesEl.textContent = `Lives: ${lives}`;
+  gameGrid.innerHTML = '';
   gameStatusEl.textContent = '';
   cruiseElroyTrigger = levelData.cruiseElroyTrigger;
   pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
@@ -186,6 +186,7 @@ const gameStartPlayerPlacement = () => {
   pacmanDirection = 'right';
   score = 0;
   lives = 3;
+  livesEl.textContent = `Lives: ${lives}`;
   levelData = JSON.parse(JSON.stringify(levelsData.level1));
   gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
 
@@ -207,6 +208,13 @@ const gameStartPlayerPlacement = () => {
       }
     });
   });
+
+  gameGrid.appendChild(pacman);
+  gameGrid.appendChild(blinky);
+  gameGrid.appendChild(pinky);
+  gameGrid.appendChild(inky);
+  gameGrid.appendChild(clyde);
+
 };
 
 const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
