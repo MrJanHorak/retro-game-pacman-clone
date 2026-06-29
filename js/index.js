@@ -158,6 +158,14 @@ const gameLoop = (timestamp) => {
   }
 };
 
+const addLifeImage = () => {
+  const pacLifeEl = document.createElement('img');
+  pacLifeEl.classList.add('pacLife');
+  pacLifeEl.src = '../assets/characterSprites/pacman/extra_life.svg';
+  pacLifeEl.width = 22;
+  return pacLifeEl;
+};
+
 const checkGameOver = () => {
   if (lives <= 0) {
     gameOver = true;
@@ -186,7 +194,10 @@ const gameStartPlayerPlacement = () => {
   pacmanDirection = 'right';
   score = 0;
   lives = 3;
-  livesEl.textContent = `Lives: ${lives}`;
+  livesEl.textContent = `Lives:`;
+  for (let i = 0; i < lives; i++) {
+    livesEl.appendChild(addLifeImage());
+  }
   levelData = JSON.parse(JSON.stringify(levelsData.level1));
   gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
 
@@ -214,7 +225,6 @@ const gameStartPlayerPlacement = () => {
   gameGrid.appendChild(pinky);
   gameGrid.appendChild(inky);
   gameGrid.appendChild(clyde);
-
 };
 
 const playerWallColisionDetection = (playerPosition0, playerPosition1) => {
@@ -294,7 +304,10 @@ const checkGhostCollision = () => {
       lives -= 1;
       pacmanDeath();
       setTimeout(() => {
-        livesEl.textContent = `Lives: ${lives}`;
+        livesEl.textContent = `Lives:`;
+        for (let i = 0; i < lives; i++) {
+          livesEl.appendChild(addLifeImage());
+        }
         pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
         pacman.classList.remove('pacman-death');
         pacman.classList.add('pacman');
@@ -316,7 +329,10 @@ const checkGhostCollision = () => {
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
     } else {
       lives -= 1;
-      livesEl.textContent = `Lives: ${lives}`;
+      livesEl.textContent = `Lives:`;
+      for (let i = 0; i < lives; i++) {
+        livesEl.appendChild(addLifeImage());
+      }
       pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
       pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
       pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
@@ -334,7 +350,10 @@ const checkGhostCollision = () => {
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
     } else {
       lives -= 1;
-      livesEl.textContent = `Lives: ${lives}`;
+      livesEl.textContent = `Lives:`;
+      for (let i = 0; i < lives; i++) {
+        livesEl.appendChild(addLifeImage());
+      }
       pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
       pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
       pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
@@ -352,7 +371,10 @@ const checkGhostCollision = () => {
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
     } else {
       lives -= 1;
-      livesEl.textContent = `Lives: ${lives}`;
+      livesEl.textContent = `Lives:`;
+      for (let i = 0; i < lives; i++) {
+        livesEl.appendChild(addLifeImage());
+      }
       pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
       pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
       pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
@@ -1032,7 +1054,10 @@ gameContainer.appendChild(bottomInfoBar);
 
 const livesEl = document.createElement('div');
 livesEl.classList.add('lives');
-livesEl.textContent = `Lives: ${lives}`;
+livesEl.textContent = `Lives:`;
+for (let i = 0; i < lives; i++) {
+  livesEl.appendChild(addLifeImage());
+}
 bottomInfoBar.appendChild(livesEl);
 
 const bonusEl = document.createElement('div');
