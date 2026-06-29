@@ -289,95 +289,115 @@ const chompPowerPellet = (pacmanPosition) => {
 };
 
 const checkGhostCollision = () => {
-  if (
-    pacmanPosition[0] === blinkyPosition[0] &&
-    pacmanPosition[1] === blinkyPosition[1]
-  ) {
-    if (isScatterMode) {
-      score += ghostChomped;
-      updateScore();
-      blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
-      blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
-      blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
-      ghostChomped = ghostChomped * 2;
-    } else {
-      lives -= 1;
-      pacmanDeath();
-      setTimeout(() => {
-        livesEl.textContent = `Lives:`;
-        for (let i = 0; i < lives; i++) {
-          livesEl.appendChild(addLifeImage());
-        }
-        pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-        pacman.classList.remove('pacman-death');
-        pacman.classList.add('pacman');
-        pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-        pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
-        pacmanDead = false;
-      }, 1000);
-    }
-  }
-  if (
-    pacmanPosition[0] === pinkyPosition[0] &&
-    pacmanPosition[1] === pinkyPosition[1]
-  ) {
-    if (isScatterMode) {
-      score += 200;
-      updateScore();
-      pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
-      pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
-      pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-    } else {
-      lives -= 1;
-      livesEl.textContent = `Lives:`;
-      for (let i = 0; i < lives; i++) {
-        livesEl.appendChild(addLifeImage());
+  if (!pacmanDead) {
+    if (
+      pacmanPosition[0] === blinkyPosition[0] &&
+      pacmanPosition[1] === blinkyPosition[1]
+    ) {
+      if (isScatterMode) {
+        score += ghostChomped;
+        updateScore();
+        blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+        blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
+        blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
+        ghostChomped = ghostChomped * 2;
+      } else {
+        lives--;
+        pacmanDeath();
+        setTimeout(() => {
+          livesEl.textContent = `Lives:`;
+          for (let i = 0; i < lives; i++) {
+            livesEl.appendChild(addLifeImage());
+          }
+          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+          pacman.classList.remove('pacman-death');
+          pacman.classList.add('pacman');
+          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+          pacmanDead = false;
+        }, 1000);
       }
-      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
     }
-  }
-  if (
-    pacmanPosition[0] === inkyPosition[0] &&
-    pacmanPosition[1] === inkyPosition[1]
-  ) {
-    if (isScatterMode) {
-      score += 200;
-      updateScore();
-      inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
-      inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
-      inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
-    } else {
-      lives -= 1;
-      livesEl.textContent = `Lives:`;
-      for (let i = 0; i < lives; i++) {
-        livesEl.appendChild(addLifeImage());
+    if (
+      pacmanPosition[0] === pinkyPosition[0] &&
+      pacmanPosition[1] === pinkyPosition[1]
+    ) {
+      if (isScatterMode) {
+        score += 200;
+        updateScore();
+        pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+        pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
+        pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
+      } else {
+        lives--;
+        pacmanDeath();
+        setTimeout(() => {
+          livesEl.textContent = `Lives:`;
+          for (let i = 0; i < lives; i++) {
+            livesEl.appendChild(addLifeImage());
+          }
+          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+          pacman.classList.remove('pacman-death');
+          pacman.classList.add('pacman');
+          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+          pacmanDead = false;
+        }, 1000);
       }
-      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
     }
-  }
-  if (
-    pacmanPosition[0] === clydePosition[0] &&
-    pacmanPosition[1] === clydePosition[1]
-  ) {
-    if (isScatterMode) {
-      score += 200;
-      updateScore();
-      clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
-      clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
-      clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
-    } else {
-      lives -= 1;
-      livesEl.textContent = `Lives:`;
-      for (let i = 0; i < lives; i++) {
-        livesEl.appendChild(addLifeImage());
+    if (
+      pacmanPosition[0] === inkyPosition[0] &&
+      pacmanPosition[1] === inkyPosition[1]
+    ) {
+      if (isScatterMode) {
+        score += 200;
+        updateScore();
+        inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+        inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
+        inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
+      } else {
+        lives--;
+        pacmanDeath();
+        setTimeout(() => {
+          livesEl.textContent = `Lives:`;
+          for (let i = 0; i < lives; i++) {
+            livesEl.appendChild(addLifeImage());
+          }
+          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+          pacman.classList.remove('pacman-death');
+          pacman.classList.add('pacman');
+          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+          pacmanDead = false;
+        }, 1000);
       }
-      pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-      pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-      pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+    }
+    if (
+      pacmanPosition[0] === clydePosition[0] &&
+      pacmanPosition[1] === clydePosition[1]
+    ) {
+      if (isScatterMode) {
+        score += 200;
+        updateScore();
+        clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+        clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
+        clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
+      } else {
+        lives--;
+        pacmanDeath();
+        setTimeout(() => {
+          livesEl.textContent = `Lives:`;
+          for (let i = 0; i < lives; i++) {
+            livesEl.appendChild(addLifeImage());
+          }
+          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+          pacman.classList.remove('pacman-death');
+          pacman.classList.add('pacman');
+          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+          pacmanDead = false;
+        }, 1000);
+      }
     }
   }
 };
