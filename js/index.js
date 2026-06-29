@@ -21,7 +21,6 @@ let gameOver,
   clydePosition,
   bonusPosition,
   pacmanDirection,
-  pacmanDirectionLast,
   ghostStartPosition,
   blinkyDirection,
   pinkyDirection,
@@ -31,7 +30,8 @@ let gameOver,
   pinkyDirectionLast,
   inkyDirectionLast,
   clydeDirectionLast,
-  pacmanDeterminedDirection;
+  pacmanDeterminedDirection,
+  pacmanDesiredDirection;
 
 let score = 0,
   lives = 3,
@@ -100,6 +100,7 @@ bonus = levelData.bonusInfo[level];
 // functions
 const gameLoop = (timestamp) => {
   requestAnimationFrame(gameLoop);
+
   if (pacmanDead) {
     animatePacman(timestamp);
   }
@@ -116,6 +117,29 @@ const gameLoop = (timestamp) => {
 
   if (elapsedSincePacmanTick >= gameInterval) {
     lastGameUpdateTime = timestamp - (elapsedSincePacmanTick % gameInterval);
+
+    switch (pacmanDesiredDirection) {
+      case 'up':
+        !playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1] - 1)
+          ? (pacmanDirection = pacmanDesiredDirection)
+          : null;
+        break;
+      case 'down':
+        !playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1] + 1)
+          ? (pacmanDirection = pacmanDesiredDirection)
+          : null;
+        break;
+      case 'left':
+        !playerWallColisionDetection(pacmanPosition[0] - 1, pacmanPosition[1])
+          ? (pacmanDirection = pacmanDesiredDirection)
+          : null;
+        break;
+      case 'right':
+        !playerWallColisionDetection(pacmanPosition[0] + 1, pacmanPosition[1])
+          ? (pacmanDirection = pacmanDesiredDirection)
+          : null;
+        break;
+    }
 
     checkGameOver();
     placeBonus();
@@ -278,6 +302,7 @@ const resetLevelAfterDeath = () => {
   clydeStarted = false;
   ghostCount = 0;
   gameStarted = true;
+  pacmanDesiredDirection = 'right';
   pacmanDirection = 'right';
 };
 
@@ -621,11 +646,8 @@ const animateGhosts = (timestamp) => {
 
 const movePacmanRight = (pacmanPosition) => {
   pacmanPosition[0] += 1;
-  if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
-  ) {
+  if (playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
     pacmanPosition[0] -= 1;
-    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacmanDeterminedDirection = pacmanDirection;
@@ -637,11 +659,8 @@ const movePacmanRight = (pacmanPosition) => {
 
 const movePacmanLeft = (pacmanPosition) => {
   pacmanPosition[0] -= 1;
-  if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
-  ) {
+  if (playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
     pacmanPosition[0] += 1;
-    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacmanDeterminedDirection = pacmanDirection;
@@ -653,11 +672,8 @@ const movePacmanLeft = (pacmanPosition) => {
 
 const movePacmanUp = (pacmanPosition) => {
   pacmanPosition[1] -= 1;
-  if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
-  ) {
+  if (playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
     pacmanPosition[1] += 1;
-    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacmanDeterminedDirection = pacmanDirection;
@@ -669,11 +685,8 @@ const movePacmanUp = (pacmanPosition) => {
 
 const movePacmanDown = (pacmanPosition) => {
   pacmanPosition[1] += 1;
-  if (
-    playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
-  ) {
+  if (playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1])) {
     pacmanPosition[1] -= 1;
-    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacmanDeterminedDirection = pacmanDirection;
@@ -909,6 +922,7 @@ const moveBlinky = () => {
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
       break;
     case 'left':
+      blinkyPosition[0] -= 1;
       if (isScatterMode) {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -918,9 +932,9 @@ const moveBlinky = () => {
       }
       blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
-      blinkyPosition[0] -= 1;
       break;
     case 'right':
+      blinkyPosition[0] += 1;
       if (isScatterMode) {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -930,7 +944,6 @@ const moveBlinky = () => {
       }
       blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
       blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
-      blinkyPosition[0] += 1;
       break;
   }
 
@@ -981,6 +994,7 @@ const movePinky = () => {
 
   switch (pinkyDirection) {
     case 'up':
+      pinkyPosition[1] -= 1;
       if (isScatterMode) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -990,9 +1004,9 @@ const movePinky = () => {
       }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-      pinkyPosition[1] -= 1;
       break;
     case 'down':
+      pinkyPosition[1] += 1;
       if (isScatterMode) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1002,9 +1016,9 @@ const movePinky = () => {
       }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-      pinkyPosition[1] += 1;
       break;
     case 'left':
+      pinkyPosition[0] -= 1;
       if (isScatterMode) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1014,9 +1028,9 @@ const movePinky = () => {
       }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-      pinkyPosition[0] -= 1;
       break;
     case 'right':
+      pinkyPosition[0] += 1;
       if (isScatterMode) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1026,7 +1040,6 @@ const movePinky = () => {
       }
       pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
       pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-      pinkyPosition[0] += 1;
       break;
   }
 
@@ -1078,6 +1091,7 @@ const moveInky = () => {
 
   switch (inkyDirection) {
     case 'up':
+      inkyPosition[1] -= 1;
       if (isScatterMode) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1087,9 +1101,9 @@ const moveInky = () => {
       }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
-      inkyPosition[1] -= 1;
       break;
     case 'down':
+      inkyPosition[1] += 1;
       if (isScatterMode) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1099,9 +1113,9 @@ const moveInky = () => {
       }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
-      inkyPosition[1] += 1;
       break;
     case 'left':
+      inkyPosition[0] -= 1;
       if (isScatterMode) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1111,9 +1125,9 @@ const moveInky = () => {
       }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
-      inkyPosition[0] -= 1;
       break;
     case 'right':
+      inkyPosition[0] += 1;
       if (isScatterMode) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1123,7 +1137,6 @@ const moveInky = () => {
       }
       inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
       inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
-      inkyPosition[0] += 1;
       break;
   }
 
@@ -1168,6 +1181,7 @@ const moveClyde = () => {
 
   switch (clydeDirection) {
     case 'up':
+      clydePosition[1] -= 1;
       if (isScatterMode) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1177,9 +1191,9 @@ const moveClyde = () => {
       }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
-      clydePosition[1] -= 1;
       break;
     case 'down':
+      clydePosition[1] += 1;
       if (isScatterMode) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1189,9 +1203,9 @@ const moveClyde = () => {
       }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
-      clydePosition[1] += 1;
       break;
     case 'left':
+      clydePosition[0] -= 1;
       if (isScatterMode) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1201,9 +1215,9 @@ const moveClyde = () => {
       }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
-      clydePosition[0] -= 1;
       break;
     case 'right':
+      clydePosition[0] += 1;
       if (isScatterMode) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
@@ -1213,7 +1227,6 @@ const moveClyde = () => {
       }
       clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
       clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
-      clydePosition[0] += 1;
       break;
   }
 
@@ -1335,26 +1348,22 @@ document.addEventListener('keydown', (event) => {
     case 'ArrowUp':
     case 'w':
     case 'W':
-      pacmanDirectionLast = pacmanDirection;
-      pacmanDirection = 'up';
+      pacmanDesiredDirection = 'up';
       break;
     case 'ArrowDown':
     case 's':
     case 'S':
-      pacmanDirectionLast = pacmanDirection;
-      pacmanDirection = 'down';
+      pacmanDesiredDirection = 'down';
       break;
     case 'ArrowLeft':
     case 'a':
     case 'A':
-      pacmanDirectionLast = pacmanDirection;
-      pacmanDirection = 'left';
+      pacmanDesiredDirection = 'left';
       break;
     case 'ArrowRight':
     case 'd':
     case 'D':
-      pacmanDirectionLast = pacmanDirection;
-      pacmanDirection = 'right';
+      pacmanDesiredDirection = 'right';
       break;
     case 'Space':
     case ' ':
