@@ -3,7 +3,6 @@ import { levelsData } from '../data/levels.js';
 
 // initial variables for game state
 let gameOver,
-  level,
   player,
   bonus,
   levelData,
@@ -42,7 +41,10 @@ let score = 0,
   gameStarted = false,
   ghostChomped = 200,
   pacmanDead = false,
-  lastGameUpdateTime = 0;
+  lastGameUpdateTime = 0,
+  level = 1,
+  bonusCount = 1,
+  bonusIsVisible = false;
 
 const gameFps = 10;
 const gameInterval = 1000 / gameFps;
@@ -68,15 +70,15 @@ let lastGhostAnimationTime = 0;
 const startingTimestamp = performance.now();
 
 const bonusAssets = {
-  'apple':'../assets/bonusSprites/apple.svg',
-  'bell':'../assets/bonusSprites/bell.svg',
-  'cherry':'../assets/bonusSprites/cherry.svg',
-  'galaxian':'../assets/bonusSprites/galaxian.svg',
-  'key':'../assets/bonusSprites/key.svg',
-  'melon':'../assets/bonusSprites/melon.svg',
-  'orange':'../assets/bonusSprites/orange.svg',
-  'strawberry':'../assets/bonusSprites/strawberry.svg',
-}
+  apple: '../assets/bonusSprites/apple.svg',
+  bell: '../assets/bonusSprites/bell.svg',
+  cherry: '../assets/bonusSprites/cherry.svg',
+  galaxian: '../assets/bonusSprites/galaxian.svg',
+  key: '../assets/bonusSprites/key.svg',
+  melon: '../assets/bonusSprites/melon.svg',
+  orange: '../assets/bonusSprites/orange.svg',
+  strawberry: '../assets/bonusSprites/strawberry.svg',
+};
 
 levelData = JSON.parse(JSON.stringify(levelsData.level1));
 gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
@@ -87,8 +89,8 @@ blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
 pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
 inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
 clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
-bonusPosition = JSON.parse(JSON.stringify(levelData.bonusInfo.location));
-bonus = levelData.bonusInfo.type;
+bonusPosition = JSON.parse(JSON.stringify(levelData.bonusLocation));
+bonus = levelData.bonusInfo[level];
 
 // functions
 const gameLoop = (timestamp) => {
@@ -98,11 +100,9 @@ const gameLoop = (timestamp) => {
     return;
   }
 
-  // Initialize anchors
   if (!lastGameUpdateTime) lastGameUpdateTime = timestamp;
   if (!lastGhostMoveTime) lastGhostMoveTime = timestamp;
 
-  // Track elapsed time for both entities separately
   const elapsedSincePacmanTick = timestamp - lastGameUpdateTime;
   const elapsedSinceGhostTick = timestamp - lastGhostMoveTime;
 
@@ -110,8 +110,9 @@ const gameLoop = (timestamp) => {
     lastGameUpdateTime = timestamp - (elapsedSincePacmanTick % gameInterval);
 
     checkGameOver();
+    placeBonus();
     animatePacman(timestamp);
-    animateGhosts(timestamp); // Keeps ghost legs wiggling smoothly
+    animateGhosts(timestamp);
 
     checkGameOver();
     animatePacman(timestamp);
@@ -120,17 +121,20 @@ const gameLoop = (timestamp) => {
       checkTunnelWrapAround(pacmanPosition);
       movePacmanRight(pacmanPosition);
       chompPellet(pacmanPosition);
+      chompBonus(pacmanPosition);
       chompPowerPellet(pacmanPosition);
       checkGhostCollision();
     } else if (pacmanDirection === 'left') {
       checkTunnelWrapAround(pacmanPosition);
       checkGhostCollision();
       movePacmanLeft(pacmanPosition);
+      chompBonus(pacmanPosition);
       chompPellet(pacmanPosition);
       chompPowerPellet(pacmanPosition);
     } else if (pacmanDirection === 'up') {
       checkTunnelWrapAround(pacmanPosition);
       movePacmanUp(pacmanPosition);
+      chompBonus(pacmanPosition);
       chompPellet(pacmanPosition);
       chompPowerPellet(pacmanPosition);
       checkGhostCollision();
@@ -138,6 +142,7 @@ const gameLoop = (timestamp) => {
       checkTunnelWrapAround(pacmanPosition);
       checkGhostCollision();
       movePacmanDown(pacmanPosition);
+      chompBonus(pacmanPosition);
       chompPellet(pacmanPosition);
       chompPowerPellet(pacmanPosition);
     }
@@ -171,7 +176,7 @@ const gameLoop = (timestamp) => {
 
 const addLifeImage = () => {
   const pacLifeEl = document.createElement('img');
-  pacLifeEl.classList.add('pacLife');
+  pacLifeEl.classList.add('pac-life');
   pacLifeEl.src = '../assets/characterSprites/pacman/extra_life.svg';
   pacLifeEl.width = 22;
   return pacLifeEl;
@@ -180,15 +185,53 @@ const addLifeImage = () => {
 const addBonusImage = () => {
   const bonusImageEl = document.createElement('img');
   bonusImageEl.classList.add('bonus-image');
-  bonusImageEl.src = bonusAssets[bonus]
+  bonusImageEl.src = bonusAssets[bonus[0]];
   bonusImageEl.width = 22;
   return bonusImageEl;
-}
+};
 
 const checkGameOver = () => {
   if (lives <= 0) {
     gameOver = true;
     gameStarted = false;
+  }
+};
+
+const placeBonus = () => {
+  if (bonusCount === 1 && pelletCount >= 70) {
+    bonusCount = 2;
+    bonusIsVisible = true;
+    const bonusAppearEl = document.createElement('img');
+    bonusAppearEl.classList.add('bonus-element');
+
+    bonusAppearEl.src = bonusAssets[bonus[0]];
+    bonusAppearEl.width = 22;
+    gameGrid.appendChild(bonusAppearEl);
+
+    bonusAppearEl.style.gridColumnStart = `${levelData.bonusLocation[0] + 1}`;
+    bonusAppearEl.style.gridRowStart = `${levelData.bonusLocation[1] + 1}`;
+
+    setTimeout(() => {
+      bonusIsVisible = false;
+      bonusAppearEl.remove();
+    }, 9500);
+  }
+  if (bonusCount === 2 && pelletCount >= 170) {
+    bonusCount = 3;
+    bonusIsVisible = true;
+    const bonusAppearEl = document.createElement('img');
+    bonusAppearEl.classList.add('bonus-element');
+    bonusAppearEl.src = bonusAssets[bonus[0]];
+    bonusAppearEl.width = 22;
+
+    gameGrid.appendChild(bonusAppearEl);
+
+    bonusAppearEl.style.gridColumnStart = `${levelData.bonusLocation[0] + 1}`;
+    bonusAppearEl.style.gridRowStart = `${levelData.bonusLocation[1] + 1}`;
+    setTimeout(() => {
+      bonusIsVisible = false;
+      bonusAppearEl.remove();
+    }, 9500);
   }
 };
 
@@ -201,8 +244,8 @@ const gameStartPlayerPlacement = () => {
   pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
   inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
   clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
-  bonusPosition = JSON.parse(JSON.stringify(levelData.bonusInfo.location));
-  bonus = levelData.bonusInfo.type;
+  bonusPosition = JSON.parse(JSON.stringify(levelData.bonusLocation));
+  bonus = levelData.bonusInfo[level];
   pinkyStarted = false;
   inkyStarted = false;
   clydeStarted = false;
@@ -213,6 +256,8 @@ const gameStartPlayerPlacement = () => {
   pacmanDirection = 'right';
   score = 0;
   lives = 3;
+  bonusCount = 1;
+  bonusIsVisible = false;
   livesEl.textContent = `Lives:`;
   for (let i = 0; i < lives; i++) {
     livesEl.appendChild(addLifeImage());
@@ -304,6 +349,19 @@ const chompPowerPellet = (pacmanPosition) => {
     score += 50;
     updateScore();
     activateScatterMode();
+  }
+};
+
+const chompBonus = (pacmanPosition) => {
+  if (bonusIsVisible) {
+    if (
+      pacmanPosition[1] === levelData.bonusLocation[1] &&
+      pacmanPosition[0] === levelData.bonusLocation[0]
+    ) {
+      score += bonus[1];
+      const bonusElement = document.querySelector('.bonus-element').remove();
+      updateScore();
+    }
   }
 };
 
@@ -1102,9 +1160,8 @@ bottomInfoBar.appendChild(livesEl);
 const bonusEl = document.createElement('div');
 bonusEl.classList.add('bonus');
 bonusEl.textContent = `Bonus:`;
-bonusEl.appendChild(addBonusImage())
+bonusEl.appendChild(addBonusImage());
 bottomInfoBar.appendChild(bonusEl);
-
 
 const gameStatusEl = document.createElement('div');
 gameStatusEl.classList.add('game-status');
