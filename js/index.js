@@ -254,6 +254,7 @@ const placeBonus = () => {
 const nextLevel = () => {
   gameGrid.innerHTML = '';
   gameStatusEl.textContent = '';
+  bonus = levelData.bonusInfo[level];
   cruiseElroyTrigger = levelData.cruiseElroyTrigger;
   pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
   blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
@@ -306,7 +307,7 @@ const nextLevel = () => {
   gameGrid.appendChild(inky);
   gameGrid.appendChild(clyde);
 
-  addBonusImage();
+  bonusEl.appendChild(addBonusImage());
 };
 
 const gameStartPlayerPlacement = () => {
