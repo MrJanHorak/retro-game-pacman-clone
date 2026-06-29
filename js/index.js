@@ -21,6 +21,7 @@ let gameOver,
   clydePosition,
   bonusPosition,
   pacmanDirection,
+  pacmanDirectionLast,
   ghostStartPosition,
   blinkyDirection,
   pinkyDirection,
@@ -32,7 +33,6 @@ let gameOver,
   clydeDirectionLast;
 
 let score = 0,
-  highScore = 0,
   lives = 3,
   isScatterMode = false,
   pinkyStarted = false,
@@ -47,6 +47,8 @@ let score = 0,
   bonusIsVisible = false,
   pelletCountTotal = 0,
   powerPelletTimer = null;
+
+let highScore = Number(localStorage.getItem('highScore')) || 0;
 
 const gameFps = 10;
 const gameInterval = 1000 / gameFps;
@@ -118,33 +120,33 @@ const gameLoop = (timestamp) => {
     animateGhosts(timestamp);
 
     if (pacmanDirection === 'right') {
-      checkTunnelWrapAround(pacmanPosition);
       movePacmanRight(pacmanPosition);
+      checkTunnelWrapAround(pacmanPosition);
       chompPellet(pacmanPosition);
       chompBonus(pacmanPosition);
       chompPowerPellet(pacmanPosition);
       checkGhostCollision();
     } else if (pacmanDirection === 'left') {
-      checkTunnelWrapAround(pacmanPosition);
-      checkGhostCollision();
       movePacmanLeft(pacmanPosition);
+      checkTunnelWrapAround(pacmanPosition);
       chompBonus(pacmanPosition);
       chompPellet(pacmanPosition);
       chompPowerPellet(pacmanPosition);
+      checkGhostCollision();
     } else if (pacmanDirection === 'up') {
-      checkTunnelWrapAround(pacmanPosition);
       movePacmanUp(pacmanPosition);
+      checkTunnelWrapAround(pacmanPosition);
       chompBonus(pacmanPosition);
       chompPellet(pacmanPosition);
       chompPowerPellet(pacmanPosition);
       checkGhostCollision();
     } else if (pacmanDirection === 'down') {
-      checkTunnelWrapAround(pacmanPosition);
-      checkGhostCollision();
       movePacmanDown(pacmanPosition);
+      checkTunnelWrapAround(pacmanPosition);
       chompBonus(pacmanPosition);
       chompPellet(pacmanPosition);
       chompPowerPellet(pacmanPosition);
+      checkGhostCollision();
     }
 
     if (elapsedSinceGhostTick >= ghostMoveInterval) {
@@ -249,6 +251,25 @@ const placeBonus = () => {
       bonusAppearEl.remove();
     }, 9500);
   }
+};
+
+const resetLevelAfterDeath = () => {
+  pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+  blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+  pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+  inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+  clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+  bonusPosition = JSON.parse(JSON.stringify(levelData.bonusLocation));
+  blinky.style.visibility = 'visible';
+  pinky.style.visibility = 'visible';
+  inky.style.visibility = 'visible';
+  clyde.style.visibility = 'visible';
+  pinkyStarted = false;
+  inkyStarted = false;
+  clydeStarted = false;
+  ghostCount = 0;
+  gameStarted = true;
+  pacmanDirection = 'right';
 };
 
 const nextLevel = () => {
@@ -397,6 +418,7 @@ const updateScore = () => {
   if (score > highScore) {
     highScore = score;
     highScoreEl.textContent = `${highScore}`;
+    localStorage.setItem('highScore', highScore);
   }
 };
 
@@ -599,6 +621,7 @@ const movePacmanRight = (pacmanPosition) => {
     playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[0] -= 1;
+    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacman.style.backgroundImage =
@@ -613,6 +636,7 @@ const movePacmanLeft = (pacmanPosition) => {
     playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[0] += 1;
+    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacman.style.backgroundImage =
@@ -627,6 +651,7 @@ const movePacmanUp = (pacmanPosition) => {
     playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[1] += 1;
+    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacman.style.backgroundImage =
@@ -641,6 +666,7 @@ const movePacmanDown = (pacmanPosition) => {
     playerWallColisionDetection(pacmanPosition[0], pacmanPosition[1], 'pacman')
   ) {
     pacmanPosition[1] -= 1;
+    pacmanDirection = pacmanDirectionLast;
     return;
   }
   pacman.style.backgroundImage =
@@ -651,6 +677,11 @@ const movePacmanDown = (pacmanPosition) => {
 
 const pacmanDeath = () => {
   pacmanDead = true;
+  gameStarted = false;
+  blinky.style.visibility = 'hidden';
+  pinky.style.visibility = 'hidden';
+  inky.style.visibility = 'hidden';
+  clyde.style.visibility = 'hidden';
   currentFrame = 0;
   pacman.classList.remove('pacman');
   pacman.classList.add('pacman-death');
@@ -658,6 +689,10 @@ const pacmanDeath = () => {
     'url(../assets/characterSprites/pacman/pacman_death.svg)';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+
+  setTimeout(() => {
+    resetLevelAfterDeath();
+  }, 2000);
 };
 
 const checkTunnelWrapAround = (pacmanPosition) => {
@@ -729,7 +764,7 @@ const activateScatterMode = () => {
     clyde.classList.remove('scared-ghost');
     ghostMoveInterval = GHOST_SPEED_NORMAL;
     ghostChomped = 200;
-    endPowerPelletMode();
+    endPowerPelletTimer();
   }, 8000);
 };
 
@@ -1294,21 +1329,25 @@ document.addEventListener('keydown', (event) => {
     case 'ArrowUp':
     case 'w':
     case 'W':
+      pacmanDirectionLast = pacmanDirection;
       pacmanDirection = 'up';
       break;
     case 'ArrowDown':
     case 's':
     case 'S':
+      pacmanDirectionLast = pacmanDirection;
       pacmanDirection = 'down';
       break;
     case 'ArrowLeft':
     case 'a':
     case 'A':
+      pacmanDirectionLast = pacmanDirection;
       pacmanDirection = 'left';
       break;
     case 'ArrowRight':
     case 'd':
     case 'D':
+      pacmanDirectionLast = pacmanDirection;
       pacmanDirection = 'right';
       break;
     case 'Space':
