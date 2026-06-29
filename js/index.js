@@ -30,7 +30,8 @@ let gameOver,
   blinkyDirectionLast,
   pinkyDirectionLast,
   inkyDirectionLast,
-  clydeDirectionLast;
+  clydeDirectionLast,
+  pacmanDeterminedDirection;
 
 let score = 0,
   lives = 3,
@@ -624,6 +625,7 @@ const movePacmanRight = (pacmanPosition) => {
     pacmanDirection = pacmanDirectionLast;
     return;
   }
+  pacmanDeterminedDirection = pacmanDirection;
   pacman.style.backgroundImage =
     'url(../assets/characterSprites/pacman/pacman_right.svg )';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
@@ -639,6 +641,7 @@ const movePacmanLeft = (pacmanPosition) => {
     pacmanDirection = pacmanDirectionLast;
     return;
   }
+  pacmanDeterminedDirection = pacmanDirection;
   pacman.style.backgroundImage =
     'url(../assets/characterSprites/pacman/pacman_left.svg )';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
@@ -654,6 +657,7 @@ const movePacmanUp = (pacmanPosition) => {
     pacmanDirection = pacmanDirectionLast;
     return;
   }
+  pacmanDeterminedDirection = pacmanDirection;
   pacman.style.backgroundImage =
     'url(../assets/characterSprites/pacman/pacman_up.svg )';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
@@ -669,6 +673,7 @@ const movePacmanDown = (pacmanPosition) => {
     pacmanDirection = pacmanDirectionLast;
     return;
   }
+  pacmanDeterminedDirection = pacmanDirection;
   pacman.style.backgroundImage =
     'url(../assets/characterSprites/pacman/pacman_down.svg )';
   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
@@ -948,7 +953,7 @@ const movePinky = () => {
     pinkyDirectionLast = pinkyDirection;
   }
 
-  switch (pacmanDirection) {
+  switch (pacmanDeterminedDirection) {
     case 'up':
       pinkyTargetCell = [pacmanPosition[0], pacmanPosition[1] - 4];
       break;
