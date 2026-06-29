@@ -339,6 +339,11 @@ textarea {
   margin-top: -6px;
 }
 
+.bonus-element {
+  padding-top: 0%;
+  width: 14px;
+}
+
 .blinky {
   background-image: url('../assets/characterSprites/blinky/blinky_up.svg');
   background-size: 200%;

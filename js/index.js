@@ -44,7 +44,9 @@ let score = 0,
   lastGameUpdateTime = 0,
   level = 1,
   bonusCount = 1,
-  bonusIsVisible = false;
+  bonusIsVisible = false,
+  pelletCountTotal = 0,
+  powerPelletTimer = null;
 
 const gameFps = 10;
 const gameInterval = 1000 / gameFps;
@@ -111,12 +113,10 @@ const gameLoop = (timestamp) => {
 
     checkGameOver();
     placeBonus();
+    addBonusLife();
     animatePacman(timestamp);
     animateGhosts(timestamp);
 
-    checkGameOver();
-    animatePacman(timestamp);
-    animateGhosts(timestamp);
     if (pacmanDirection === 'right') {
       checkTunnelWrapAround(pacmanPosition);
       movePacmanRight(pacmanPosition);
@@ -151,7 +151,6 @@ const gameLoop = (timestamp) => {
       lastGhostMoveTime =
         timestamp - (elapsedSinceGhostTick % ghostMoveInterval);
 
-      // Run ghost movement functions inside this block
       checkGhostTunnelReverse(blinkyPosition, blinkyDirection, 'blinky');
       checkGhostTunnelReverse(pinkyPosition, pinkyDirection, 'pinky');
       checkGhostTunnelReverse(inkyPosition, inkyDirection, 'inky');
@@ -195,6 +194,23 @@ const checkGameOver = () => {
     gameOver = true;
     gameStarted = false;
   }
+
+  if (pelletCount === pelletCountTotal) {
+    gameOver = false;
+    gameStarted = false;
+    level++;
+    gameStatusEl.textContent = 'Congrats! Next Level!';
+    setTimeout(() => {
+      nextLevel();
+    }, 2000);
+  }
+};
+
+const addBonusLife = () => {
+  if (score > 10000 && score % 10000 === 0) {
+    lives++;
+    addLifeImage();
+  }
 };
 
 const placeBonus = () => {
@@ -235,6 +251,64 @@ const placeBonus = () => {
   }
 };
 
+const nextLevel = () => {
+  gameGrid.innerHTML = '';
+  gameStatusEl.textContent = '';
+  cruiseElroyTrigger = levelData.cruiseElroyTrigger;
+  pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+  blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
+  pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
+  inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
+  clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
+  bonusPosition = JSON.parse(JSON.stringify(levelData.bonusLocation));
+  bonus = levelData.bonusInfo[level];
+  pinkyStarted = false;
+  inkyStarted = false;
+  clydeStarted = false;
+  pelletCount = 0;
+  ghostCount = 0;
+  gameOver = false;
+  gameStarted = true;
+  pacmanDirection = 'right';
+  bonusCount = 1;
+  bonusIsVisible = false;
+  pelletCountTotal = 0;
+  livesEl.textContent = `Lives:`;
+  for (let i = 0; i < lives; i++) {
+    livesEl.appendChild(addLifeImage());
+  }
+  levelData = JSON.parse(JSON.stringify(levelsData.level1));
+  gameGridData = JSON.parse(JSON.stringify(levelData.gameGrid));
+
+  gameGridData.forEach((row, rowIndex) => {
+    row.forEach((cell, cellIndex) => {
+      if (cell === 80) {
+        pelletCountTotal++;
+        const cellEl = document.createElement('div');
+        cellEl.classList.add('pellet');
+        cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+        cellEl.style.gridRowStart = `${rowIndex + 1}`;
+        gameGrid.appendChild(cellEl);
+      }
+      if (cell === 81) {
+        const cellEl = document.createElement('div');
+        cellEl.classList.add('power-pellet');
+        cellEl.style.gridColumnStart = `${cellIndex + 1}`;
+        cellEl.style.gridRowStart = `${rowIndex + 1}`;
+        gameGrid.appendChild(cellEl);
+      }
+    });
+  });
+
+  gameGrid.appendChild(pacman);
+  gameGrid.appendChild(blinky);
+  gameGrid.appendChild(pinky);
+  gameGrid.appendChild(inky);
+  gameGrid.appendChild(clyde);
+
+  addBonusImage();
+};
+
 const gameStartPlayerPlacement = () => {
   gameGrid.innerHTML = '';
   gameStatusEl.textContent = '';
@@ -258,6 +332,7 @@ const gameStartPlayerPlacement = () => {
   lives = 3;
   bonusCount = 1;
   bonusIsVisible = false;
+  pelletCountTotal = 0;
   livesEl.textContent = `Lives:`;
   for (let i = 0; i < lives; i++) {
     livesEl.appendChild(addLifeImage());
@@ -268,6 +343,7 @@ const gameStartPlayerPlacement = () => {
   gameGridData.forEach((row, rowIndex) => {
     row.forEach((cell, cellIndex) => {
       if (cell === 80) {
+        pelletCountTotal++;
         const cellEl = document.createElement('div');
         cellEl.classList.add('pellet');
         cellEl.style.gridColumnStart = `${cellIndex + 1}`;
@@ -345,7 +421,7 @@ const chompPowerPellet = (pacmanPosition) => {
         `.power-pellet[style="grid-column-start: ${pacmanPosition[0] + 1}; grid-row-start: ${pacmanPosition[1] + 1};"]`,
       )
       .classList.remove('power-pellet');
-    pelletCount += 1;
+    // pelletCount += 1;
     score += 50;
     updateScore();
     activateScatterMode();
@@ -628,8 +704,15 @@ const reverseGhostDirection = (ghostDirection) => {
       return 'left';
   }
 };
+const endPowerPelletTimer = () => {
+  powerPelletTimer = null;
+};
 
 const activateScatterMode = () => {
+  if (powerPelletTimer !== null) {
+    clearTimeout(powerPelletTimer);
+  }
+
   isScatterMode = true;
   ghostMoveInterval = GHOST_SPEED_SLOW;
   reverseGhostDirection(blinkyDirection);
@@ -637,7 +720,7 @@ const activateScatterMode = () => {
   reverseGhostDirection(inkyDirection);
   reverseGhostDirection(clydeDirection);
 
-  setTimeout(() => {
+  powerPelletTimer = setTimeout(() => {
     isScatterMode = false;
     blinky.classList.remove('scared-ghost');
     pinky.classList.remove('scared-ghost');
@@ -645,6 +728,7 @@ const activateScatterMode = () => {
     clyde.classList.remove('scared-ghost');
     ghostMoveInterval = GHOST_SPEED_NORMAL;
     ghostChomped = 200;
+    endPowerPelletMode();
   }, 8000);
 };
 

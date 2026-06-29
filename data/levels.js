@@ -277,7 +277,6 @@ const levelsData = {
         0, 0, 0, 0,
       ],
     ],
-    ' playerStart': [0, 0],
     blinkyStart: [13, 13],
     pinkeyStart: [13, 14],
     inkyStart: [14, 13],
