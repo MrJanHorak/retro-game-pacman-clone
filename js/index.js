@@ -52,10 +52,14 @@ let score = 0,
   isBlinkyRegenerated = false,
   isPinkyDead = false,
   isPinkyRegenerated = false,
+  pinkyStartTimerSet = false,
   isInkyDead = false,
   isInkyRegenerated = false,
+  inkyStartTimerSet = false,
   isClydeDead = false,
-  isClydeRegenerated = false;
+  isClydeRegenerated = false,
+  clydeStartTimerSet = false,
+  bonusLife = 10000;
 
 let highScore = Number(localStorage.getItem('highScore')) || 0;
 
@@ -245,12 +249,14 @@ const checkGameOver = () => {
 };
 
 const addBonusLife = () => {
-  if (score > 10000 && score % 10000 === 0) {
+  if (score > bonusLife) {
+    console.log('adding bonus life');
     lives++;
+    bonusLife += 10000;
     addLifeImage();
+    console.log(lives);
   }
 };
-
 const placeBonus = () => {
   if (bonusCount === 1 && pelletCount >= 70) {
     bonusCount = 2;
@@ -270,6 +276,7 @@ const placeBonus = () => {
       bonusAppearEl.remove();
     }, 9500);
   }
+
   if (bonusCount === 2 && pelletCount >= 170) {
     bonusCount = 3;
     bonusIsVisible = true;
@@ -305,6 +312,7 @@ const returnGhostToRegenerator = (ghost) => {
       isInkyDead = true;
       inky.style.backgroundImage =
         'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
+      break;
     case 'clyde':
       isClydeDead = true;
       clyde.style.backgroundImage =
@@ -330,8 +338,11 @@ const resetLevelAfterDeath = () => {
   inky.style.visibility = 'visible';
   clyde.style.visibility = 'visible';
   pinkyStarted = false;
+  pinkyStartTimerSet = false;
   inkyStarted = false;
+  inkyStartTimerSet = false;
   clydeStarted = false;
+  clydeStartTimerSet = false;
   isBlinkyDead = false;
   isBlinkyRegenerated = false;
   isPinkyDead = false;
@@ -359,8 +370,11 @@ const nextLevel = () => {
   bonusPosition = JSON.parse(JSON.stringify(levelData.bonusLocation));
   bonus = levelData.bonusInfo[level];
   pinkyStarted = false;
+  pinkyStartTimerSet = false;
   inkyStarted = false;
+  inkyStartTimerSet = false;
   clydeStarted = false;
+  clydeStartTimerSet = false;
   isBlinkyDead = false;
   isBlinkyRegenerated = false;
   isPinkyDead = false;
@@ -425,15 +439,18 @@ const gameStartPlayerPlacement = () => {
   bonusPosition = JSON.parse(JSON.stringify(levelData.bonusLocation));
   bonus = levelData.bonusInfo[level];
   pinkyStarted = false;
+  pinkyStartTimerSet = false;
   inkyStarted = false;
+  inkyStartTimerSet = false;
   clydeStarted = false;
+  clydeStartTimerSet = false;
   isBlinkyDead = false;
-  isPinkyDead = false;
-  isInkyDead = false;
-  isClydeDead = false;
   isBlinkyRegenerated = false;
+  isPinkyDead = false;
   isPinkyRegenerated = false;
+  isInkyDead = false;
   isInkyRegenerated = false;
+  isClydeDead = false;
   isClydeRegenerated = false;
   pelletCount = 0;
   ghostCount = 0;
@@ -445,6 +462,7 @@ const gameStartPlayerPlacement = () => {
   bonusCount = 1;
   bonusIsVisible = false;
   pelletCountTotal = 0;
+  bonusLife = 10000;
   livesEl.textContent = `Lives:`;
   for (let i = 0; i < lives; i++) {
     livesEl.appendChild(addLifeImage());
@@ -495,8 +513,6 @@ const ghostWallColisionDetection = (
 ) => {
   if (
     gameGridData[ghostPosition1][ghostPosition0] > 0 &&
-    gameGridData[ghostPosition1][ghostPosition0] < 9 &&
-    gameGridData[ghostPosition1][ghostPosition0] > 9 &&
     gameGridData[ghostPosition1][ghostPosition0] < 53
   ) {
     return true;
@@ -633,12 +649,6 @@ const checkGhostCollision = () => {
           for (let i = 0; i < lives; i++) {
             livesEl.appendChild(addLifeImage());
           }
-          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-          pacman.classList.remove('pacman-death');
-          pacman.classList.add('pacman');
-          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
-          pacmanDead = false;
         }, 1000);
       }
     }
@@ -1018,7 +1028,6 @@ const moveBlinky = () => {
     ) {
       isBlinkyDead = false;
       isBlinkyRegenerated = true;
-      console.log('blinky alive again');
       blinky.style.backgroundImage =
         '../assets/characterSprites/blinky/blinky_left.svg';
       blinkyPosition = blinkyStart;
@@ -1111,7 +1120,8 @@ const movePinky = () => {
     isPinkyRegenerated = false;
   }
 
-  if (blinkyPosition !== levelData.blinkyStart && !pinkyStarted) {
+  if (blinkyPosition !== levelData.blinkyStart && !pinkyStarted && !pinkyStartTimerSet) {
+    pinkyStartTimerSet = true;
     setTimeout(() => {
       pinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
       pinkyStarted = true;
@@ -1144,7 +1154,6 @@ const movePinky = () => {
       pinkyPosition[0] === blinkyStart[0] &&
       pinkyPosition[1] === blinkyStart[1]
     ) {
-      console.log('pinky regenerated');
       isPinkyDead = false;
       isPinkyRegenerated = true;
       pinky.style.backgroundImage =
@@ -1238,11 +1247,12 @@ const moveInky = () => {
     isInkyRegenerated = false;
   }
 
-  if (blinkyPosition !== levelData.blinkyStart && !inkyStarted) {
+  if (pinkyStarted && !inkyStarted && !inkyStartTimerSet) {
+    inkyStartTimerSet = true; 
     setTimeout(() => {
       inkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
       inkyStarted = true;
-    }, 4000);
+    }, 2000);
   }
 
   if (inkyDirection !== Infinity || inkyDirection !== undefined) {
@@ -1359,6 +1369,7 @@ const moveInky = () => {
 
 const moveClyde = () => {
   // clyde targets pacman if clyde is more than 8 spaces away from pacman, but if clyde is within 8 spaces of pacman, clyde targets his scatter corner (bottom left corner of the grid)
+
   const distanceToPacman = calculateGhostPacmanDistance(
     clydePosition,
     pacmanPosition,
@@ -1366,14 +1377,15 @@ const moveClyde = () => {
   let clydeTargetCell;
 
   if (!isScatterMode && !isClydeDead && isClydeRegenerated) {
-    isInkyRegenerated = false;
+    isClydeRegenerated = false;
   }
 
-  if (clydePosition !== levelData.blinkyStart && !clydeStarted) {
+  if (inkyStarted && !clydeStarted && !clydeStartTimerSet) {
+    clydeStartTimerSet = true;
     setTimeout(() => {
       clydePosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
       clydeStarted = true;
-    }, 6000);
+    }, 2000);
   }
 
   if (clydeDirection !== Infinity || clydeDirection !== undefined) {
