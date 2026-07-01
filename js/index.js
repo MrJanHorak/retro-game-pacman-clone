@@ -427,6 +427,14 @@ const gameStartPlayerPlacement = () => {
   pinkyStarted = false;
   inkyStarted = false;
   clydeStarted = false;
+  isBlinkyDead = false;
+  isPinkyDead = false;
+  isInkyDead = false;
+  isClydeDead = false;
+  isBlinkyRegenerated = false;
+  isPinkyRegenerated = false;
+  isInkyRegenerated = false;
+  isClydeRegenerated = false;
   pelletCount = 0;
   ghostCount = 0;
   gameOver = false;
@@ -557,7 +565,7 @@ const checkGhostCollision = () => {
         updateScore();
         returnGhostToRegenerator('blinky');
         ghostChomped = ghostChomped * 2;
-      } else if (!isBlinkyDead && !isScatterMode) {
+      } else if (!isBlinkyDead) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -577,7 +585,7 @@ const checkGhostCollision = () => {
         updateScore();
         returnGhostToRegenerator('pinky');
         ghostChomped = ghostChomped * 2;
-      } else if (!isPinkyDead && !isScatterMode) {
+      } else if (!isPinkyDead) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -585,12 +593,6 @@ const checkGhostCollision = () => {
           for (let i = 0; i < lives; i++) {
             livesEl.appendChild(addLifeImage());
           }
-          //   pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-          //   pacman.classList.remove('pacman-death');
-          //   pacman.classList.add('pacman');
-          //   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-          //   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
-          //   pacmanDead = false;
         }, 1000);
       }
     }
@@ -603,7 +605,7 @@ const checkGhostCollision = () => {
         updateScore();
         returnGhostToRegenerator('inky');
         ghostChomped = ghostChomped * 2;
-      } else if (!isInkyDead && !isScatterMode) {
+      } else if (!isInkyDead) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -611,12 +613,6 @@ const checkGhostCollision = () => {
           for (let i = 0; i < lives; i++) {
             livesEl.appendChild(addLifeImage());
           }
-          // pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-          // pacman.classList.remove('pacman-death');
-          // pacman.classList.add('pacman');
-          // pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-          // pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
-          // pacmanDead = false;
         }, 1000);
       }
     }
@@ -629,7 +625,7 @@ const checkGhostCollision = () => {
         updateScore();
         returnGhostToRegenerator('clyde');
         ghostChomped = ghostChomped * 2;
-      } else if (!isClydeDead && !isScatterMode) {
+      } else if (!isClydeDead) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -809,6 +805,22 @@ const endPowerPelletTimer = () => {
 const activateScatterMode = () => {
   if (powerPelletTimer !== null) {
     clearTimeout(powerPelletTimer);
+  }
+
+  if (isBlinkyRegenerated) {
+    isBlinkyRegenerated = false;
+  }
+
+  if (isPinkyRegenerated) {
+    isPinkyRegenerated = false;
+  }
+
+  if (isInkyRegenerated) {
+    isInkyRegenerated = false;
+  }
+
+  if (isClydeRegenerated) {
+    isClydeRegenerated = false;
   }
 
   isScatterMode = true;
@@ -996,6 +1008,7 @@ const moveBlinky = () => {
   if (!isScatterMode && !isBlinkyDead && isBlinkyRegenerated) {
     isBlinkyRegenerated = false;
   }
+
   if (isBlinkyDead) {
     const blinkyStart = JSON.parse(JSON.stringify(levelData.blinkyStart));
     blinkyDirection = moveDeadGhost(blinkyPosition, blinkyDirectionLast);
@@ -1125,12 +1138,13 @@ const movePinky = () => {
   }
 
   if (isPinkyDead) {
-    const blinkyStart = JSON.parse(JSON.stringify(levelData.pinkyStart));
+    const blinkyStart = JSON.parse(JSON.stringify(levelData.blinkyStart));
     pinkyDirection = moveDeadGhost(pinkyPosition, pinkyDirectionLast);
     if (
       pinkyPosition[0] === blinkyStart[0] &&
       pinkyPosition[1] === blinkyStart[1]
     ) {
+      console.log('pinky regenerated');
       isPinkyDead = false;
       isPinkyRegenerated = true;
       pinky.style.backgroundImage =
@@ -1156,7 +1170,7 @@ const movePinky = () => {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
       } else if (isPinkyDead) {
-        blinky.style.backgroundImage =
+        pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/eyes_up.svg )';
       } else {
         pinky.style.backgroundImage =
@@ -1171,7 +1185,7 @@ const movePinky = () => {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
       } else if (isPinkyDead) {
-        blinky.style.backgroundImage =
+        pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/eyes_down.svg )';
       } else {
         pinky.style.backgroundImage =
@@ -1186,7 +1200,7 @@ const movePinky = () => {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
       } else if (isPinkyDead) {
-        blinky.style.backgroundImage =
+        pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
       } else {
         pinky.style.backgroundImage =
@@ -1201,7 +1215,7 @@ const movePinky = () => {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
       } else if (isPinkyDead) {
-        blinky.style.backgroundImage =
+        pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         pinky.style.backgroundImage =
@@ -1223,6 +1237,7 @@ const moveInky = () => {
   if (!isScatterMode && !isInkyDead && isInkyRegenerated) {
     isInkyRegenerated = false;
   }
+
   if (blinkyPosition !== levelData.blinkyStart && !inkyStarted) {
     setTimeout(() => {
       inkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
@@ -1278,9 +1293,12 @@ const moveInky = () => {
   switch (inkyDirection) {
     case 'up':
       inkyPosition[1] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isInkyDead && !isInkyRegenerated) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isInkyDead) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/inky/inky_up.svg )';
@@ -1290,9 +1308,12 @@ const moveInky = () => {
       break;
     case 'down':
       inkyPosition[1] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isInkyDead && !isInkyRegenerated) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isInkyDead) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/inky/inky_down.svg )';
@@ -1302,9 +1323,12 @@ const moveInky = () => {
       break;
     case 'left':
       inkyPosition[0] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isInkyDead && !isInkyRegenerated) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isInkyDead) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/inky/inky_left.svg )';
@@ -1314,9 +1338,12 @@ const moveInky = () => {
       break;
     case 'right':
       inkyPosition[0] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isInkyDead && !isInkyRegenerated) {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isInkyDead) {
+        inky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         inky.style.backgroundImage =
           'url(../assets/characterSprites/inky/inky_right.svg )';
@@ -1387,9 +1414,12 @@ const moveClyde = () => {
   switch (clydeDirection) {
     case 'up':
       clydePosition[1] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isClydeDead && !isClydeRegenerated) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isClydeDead) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/clyde/clyde_up.svg )';
@@ -1399,9 +1429,12 @@ const moveClyde = () => {
       break;
     case 'down':
       clydePosition[1] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isClydeDead && !isClydeRegenerated) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isClydeDead) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/clyde/clyde_down.svg )';
@@ -1411,9 +1444,12 @@ const moveClyde = () => {
       break;
     case 'left':
       clydePosition[0] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isClydeDead && !isClydeRegenerated) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isClydeDead) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/clyde/clyde_left.svg )';
@@ -1423,9 +1459,12 @@ const moveClyde = () => {
       break;
     case 'right':
       clydePosition[0] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isClydeDead && !isClydeRegenerated) {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isClydeDead) {
+        clyde.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         clyde.style.backgroundImage =
           'url(../assets/characterSprites/clyde/clyde_right.svg )';
