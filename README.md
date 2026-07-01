@@ -1,8 +1,13 @@
 # retro-game-pacman-clone
+![Pac-Man Clone Gameplay Preview](assets/screenshots/pacmanclone1.png)
 
 This is an exercise in keeping my problem-solving and coding skills sharp by creating a Pac-Man clone completely from scratch, without the use of AI.
 
 The goal of this project was to reverse-engineer and implement the classic mechanics—such as individual ghost tracking algorithms, state transitions, and level data rendering—using purely vanilla JS, HTML, and CSS.
+
+<p align="center">
+  <a href="https://pacmanclone.surge.sh" target="_blank" style="font-size: 1.5em; font-weight: bold;">🕹️ Give it a spin and play it here! 🕹️</a>
+</p>
 
 ---
 
@@ -18,19 +23,66 @@ The core gameplay loop is fully complete and functions as a stable, playable MVP
 * **State Management:** Fully functional game-over sequence on total life loss, win-condition resets when a map is cleared of pellets, and localized high-score persistence using HTML5 `localStorage`.
 * **Polish:** Fruit bonuses spawn dynamically based on remaining pellet counts, and character sprites utilize multi-frame CSS background-position animation loops.
 
-### Key Architectural Challenges & Solutions
+---
+
+## How to Play
+
+### Controls
+* **Move Pac-Man:** Use the `W` `A` `S` `D` keys or the **Arrow Keys** (`↑`, `↓`, `←`, `→`).
+* **Start / Pause Game:** Press the `Spacebar`.
+
+### Mechanics
+1. **Clear the Board:** Eat all standard pellets on the screen to win the level and advance.
+2. **Hunt the Ghosts:** Chomp large Power Pellets to turn the ghosts blue. While they are running away in frightened mode, hunt them down for cascading bonus points!
+3. **Score Bonuses:** Keep an eye out for bonus fruits spawning in the center of the maze as your pellet count grows.
+4. **Survive:** You start with 3 lives. Avoid contact with the ghosts when they are in normal chase mode, or it's game over.
+
+---
+
+## Key Architectural Challenges & Solutions
 
 Building a complex state machine like Pac-Man without an AI or external engine wrapper introduced some incredible engineering challenges:
 
-#### 1. The Ghost Regeneration Loop
+### 1. The Ghost Regeneration Loop
 Handling what happens when Pac-Man chomps a blue ghost required precise asynchronous timing. The ghost needs to strip its frightened behavior, transform into a set of disembodied eyes, and utilize an alternate pathfinding routine (`moveDeadGhost`) targeted directly back to the ghost house coordinates `[13, 11]`. Once it crosses that threshold, the state machine smoothly toggles them back to a living sprite and re-injects them into the standard game loop.
 
-#### 2. Real-Time Math & Target Navigation
+### 2. Real-Time Math & Target Navigation
 Because this grid relies on a precise tile map array ($28 \times 31$ layout), moving characters couldn't just guess their path. To replicate original ghost behavior without hardcoding paths, every intersection forces the game to evaluate the classic Euclidean distance formula against a ghost's unique destination tile:
 
 $$d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
 
 The ghost then automatically commits to the direction yielding the absolute lowest distance value, barring a $180^\circ$ reverse turn.
+
+---
+
+## Gameplay Showcases
+
+| Frightened Mode Action | Level Clearing Progression |
+| :---: | :---: |
+| ![Ghosts Scared Phase](assets/screenshots/pacmanclone3.png) | ![Pellet Map State](assets/screenshots/pacmanclone2.png) |
+
+---
+
+## Installation & Local Development
+
+Want to audit the code or play with the configuration values locally?
+
+1. Clone the repository:
+```bash
+git clone [https://github.com/YOUR_USERNAME/retro-game-pacman-clone.git](https://github.com/YOUR_USERNAME/retro-game-pacman-clone.git)
+```
+
+2. Navigate into the directory:
+```bash
+cd retro-game-pacman-clone
+```
+
+3. Because the game utilizes ES Modules (`type="module"`), you must serve it over a local server environment rather than just opening the `index.html` file directly. You can use VS Code's **Live Server** extension, or run Python's built-in tool:
+```bash
+python -m http.server
+```
+
+4. Open your browser and go to `http://localhost:8000`.
 
 ---
 
@@ -44,16 +96,21 @@ The ghost then automatically commits to the direction yielding the absolute lowe
 ## File Structure
 
 ```text
-├── css/
-│   └── styles.css          # Monolithic stylesheet handles retro fonts, grid layouts, and sprite sheets
-├── data/
-│   └── levels.js           # Multi-dimensional arrays mapping board elements via numerical legends
 ├── assets/
-│   └── characterSprites/   # SVG files managed dynamically via inline JavaScript DOM updates
+│   ├── bonusSprites/       # Dynamic SVG reward items (fruits, keys)
+│   ├── characterSprites/   # Multi-frame direction sheets for Pac-Man and ghosts
+│   ├── mazeSprites/        # Core structural map environment tiles
+│   └── screenshots/        # Project showcase captures for documentation and previews
+├── css/
+│   └── styles.css          # Monolithic retro layout, animations, and game-canvas rules
+├── data/
+│   └── levels.js           # Multi-dimensional structural maps via JSON format arrays
 ├── js/
-│   └── app.js              # Pure vanilla tick-based game engine utilizing requestAnimationFrame
-└── index.html              # Single-page DOM anchor point containing HUD overlays and game canvas
-
+│   └── index.js            # Core tick-based game loop engine using requestAnimationFrame
+├── .gitignore
+├── CNAME
+├── index.html              # Core SPA anchor node with meta parsers and tracking layers
+└── README.md
 ```
 
 ## Game Grid Design Legend
