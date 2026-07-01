@@ -47,7 +47,15 @@ let score = 0,
   bonusCount = 1,
   bonusIsVisible = false,
   pelletCountTotal = 0,
-  powerPelletTimer = null;
+  powerPelletTimer = null,
+  isBlinkyDead = false,
+  isBlinkyRegenerated = false,
+  isPinkyDead = false,
+  isPinkyRegenerated = false,
+  isInkyDead = false,
+  isInkyRegenerated = false,
+  isClydeDead = false,
+  isClydeRegenerated = false;
 
 let highScore = Number(localStorage.getItem('highScore')) || 0;
 
@@ -281,6 +289,30 @@ const placeBonus = () => {
   }
 };
 
+const returnGhostToRegenerator = (ghost) => {
+  switch (ghost) {
+    case 'blinky':
+      isBlinkyDead = true;
+      blinky.style.backgroundImage =
+        'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
+      break;
+    case 'pinky':
+      isPinkyDead = true;
+      pinky.style.backgroundImage =
+        'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
+      break;
+    case 'inky':
+      isInkyDead = true;
+      inky.style.backgroundImage =
+        'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
+    case 'clyde':
+      isClydeDead = true;
+      clyde.style.backgroundImage =
+        'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
+      break;
+  }
+};
+
 const resetLevelAfterDeath = () => {
   pacman.classList.remove('pacman-death');
   pacman.classList.add('pacman');
@@ -300,6 +332,14 @@ const resetLevelAfterDeath = () => {
   pinkyStarted = false;
   inkyStarted = false;
   clydeStarted = false;
+  isBlinkyDead = false;
+  isBlinkyRegenerated = false;
+  isPinkyDead = false;
+  isPinkyRegenerated = false;
+  isInkyDead = false;
+  isInkyRegenerated = false;
+  isClydeDead = false;
+  isClydeRegenerated = false;
   ghostCount = 0;
   gameStarted = true;
   pacmanDesiredDirection = 'right';
@@ -321,6 +361,14 @@ const nextLevel = () => {
   pinkyStarted = false;
   inkyStarted = false;
   clydeStarted = false;
+  isBlinkyDead = false;
+  isBlinkyRegenerated = false;
+  isPinkyDead = false;
+  isPinkyRegenerated = false;
+  isInkyDead = false;
+  isInkyRegenerated = false;
+  isClydeDead = false;
+  isClydeRegenerated = false;
   pelletCount = 0;
   ghostCount = 0;
   gameOver = false;
@@ -504,14 +552,12 @@ const checkGhostCollision = () => {
       pacmanPosition[0] === blinkyPosition[0] &&
       pacmanPosition[1] === blinkyPosition[1]
     ) {
-      if (isScatterMode) {
+      if (isScatterMode && !isBlinkyDead && !isBlinkyRegenerated) {
         score += ghostChomped;
         updateScore();
-        blinkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
-        blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
-        blinky.style.gridRowStart = `${blinkyPosition[1] + 1}`;
+        returnGhostToRegenerator('blinky');
         ghostChomped = ghostChomped * 2;
-      } else {
+      } else if (!isBlinkyDead && !isScatterMode) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -526,13 +572,12 @@ const checkGhostCollision = () => {
       pacmanPosition[0] === pinkyPosition[0] &&
       pacmanPosition[1] === pinkyPosition[1]
     ) {
-      if (isScatterMode) {
-        score += 200;
+      if (isScatterMode && !isPinkyDead && !isPinkyRegenerated) {
+        score += ghostChomped;
         updateScore();
-        pinkyPosition = JSON.parse(JSON.stringify(levelData.pinkyStart));
-        pinky.style.gridColumnStart = `${pinkyPosition[0] + 1}`;
-        pinky.style.gridRowStart = `${pinkyPosition[1] + 1}`;
-      } else {
+        returnGhostToRegenerator('pinky');
+        ghostChomped = ghostChomped * 2;
+      } else if (!isPinkyDead && !isScatterMode) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -540,12 +585,12 @@ const checkGhostCollision = () => {
           for (let i = 0; i < lives; i++) {
             livesEl.appendChild(addLifeImage());
           }
-          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-          pacman.classList.remove('pacman-death');
-          pacman.classList.add('pacman');
-          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
-          pacmanDead = false;
+          //   pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+          //   pacman.classList.remove('pacman-death');
+          //   pacman.classList.add('pacman');
+          //   pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+          //   pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+          //   pacmanDead = false;
         }, 1000);
       }
     }
@@ -553,13 +598,12 @@ const checkGhostCollision = () => {
       pacmanPosition[0] === inkyPosition[0] &&
       pacmanPosition[1] === inkyPosition[1]
     ) {
-      if (isScatterMode) {
-        score += 200;
+      if (isScatterMode && !isInkyDead && !isInkyRegenerated) {
+        score += ghostChomped;
         updateScore();
-        inkyPosition = JSON.parse(JSON.stringify(levelData.inkyStart));
-        inky.style.gridColumnStart = `${inkyPosition[0] + 1}`;
-        inky.style.gridRowStart = `${inkyPosition[1] + 1}`;
-      } else {
+        returnGhostToRegenerator('inky');
+        ghostChomped = ghostChomped * 2;
+      } else if (!isInkyDead && !isScatterMode) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -567,12 +611,12 @@ const checkGhostCollision = () => {
           for (let i = 0; i < lives; i++) {
             livesEl.appendChild(addLifeImage());
           }
-          pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
-          pacman.classList.remove('pacman-death');
-          pacman.classList.add('pacman');
-          pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
-          pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
-          pacmanDead = false;
+          // pacmanPosition = JSON.parse(JSON.stringify(levelData.playerStart));
+          // pacman.classList.remove('pacman-death');
+          // pacman.classList.add('pacman');
+          // pacman.style.gridColumnStart = `${pacmanPosition[0] + 1}`;
+          // pacman.style.gridRowStart = `${pacmanPosition[1] + 1}`;
+          // pacmanDead = false;
         }, 1000);
       }
     }
@@ -580,13 +624,12 @@ const checkGhostCollision = () => {
       pacmanPosition[0] === clydePosition[0] &&
       pacmanPosition[1] === clydePosition[1]
     ) {
-      if (isScatterMode) {
-        score += 200;
+      if (isScatterMode && !isClydeDead && !isClydeRegenerated) {
+        score += ghostChomped;
         updateScore();
-        clydePosition = JSON.parse(JSON.stringify(levelData.clydeStart));
-        clyde.style.gridColumnStart = `${clydePosition[0] + 1}`;
-        clyde.style.gridRowStart = `${clydePosition[1] + 1}`;
-      } else {
+        returnGhostToRegenerator('clyde');
+        ghostChomped = ghostChomped * 2;
+      } else if (!isClydeDead && !isScatterMode) {
         lives--;
         pacmanDeath();
         setTimeout(() => {
@@ -794,6 +837,12 @@ const calculateGhostPacmanDistance = (ghostPosition, ghostTargetCell) => {
   return distance;
 };
 
+const calculateGhostHomeDistance = (ghostPosition) => {
+  const distance =
+    Math.pow(ghostPosition[0] - 13, 2) + Math.pow(ghostPosition[1] - 11, 2);
+  return distance;
+};
+
 const determineShortestDistance = (
   distanceUp,
   distanceLeft,
@@ -824,6 +873,62 @@ const ghostInBounds = (ghostPosition) => {
   if (ghostPosition[0] >= 0 && ghostPosition[0] <= 27) {
     return true;
   }
+};
+
+const moveDeadGhost = (ghostPosition, ghostDirectionLast) => {
+  if (
+    !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] - 1) &&
+    ghostDirectionLast !== 'down'
+  ) {
+    distanceUp = calculateGhostHomeDistance([
+      ghostPosition[0],
+      ghostPosition[1] - 1,
+    ]);
+  } else {
+    distanceUp = Infinity;
+  }
+  if (
+    ghostInBounds([ghostPosition[0] - 1, ghostPosition[1]]) &&
+    !playerWallColisionDetection(ghostPosition[0] - 1, ghostPosition[1]) &&
+    ghostDirectionLast !== 'right'
+  ) {
+    distanceLeft = calculateGhostHomeDistance([
+      ghostPosition[0] - 1,
+      ghostPosition[1],
+    ]);
+  } else {
+    distanceLeft = Infinity;
+  }
+  if (
+    !playerWallColisionDetection(ghostPosition[0], ghostPosition[1] + 1) &&
+    ghostDirectionLast !== 'up'
+  ) {
+    distanceDown = calculateGhostHomeDistance([
+      ghostPosition[0],
+      ghostPosition[1] + 1,
+    ]);
+  } else {
+    distanceDown = Infinity;
+  }
+  if (
+    !playerWallColisionDetection(ghostPosition[0] + 1, ghostPosition[1]) &&
+    ghostDirectionLast !== 'left'
+  ) {
+    distanceRight = calculateGhostHomeDistance([
+      ghostPosition[0] + 1,
+      ghostPosition[1],
+    ]);
+  } else {
+    distanceRight = Infinity;
+  }
+
+  return determineShortestDistance(
+    distanceUp,
+    distanceLeft,
+    distanceRight,
+    distanceDown,
+    ghostDirectionLast,
+  );
 };
 
 const moveGhost = (ghostPosition, ghostTargetCell, ghostDirectionLast) => {
@@ -887,7 +992,27 @@ const moveBlinky = () => {
   if (blinkyDirection !== Infinity || blinkyDirection !== undefined) {
     blinkyDirectionLast = blinkyDirection;
   }
-  if (!isScatterMode) {
+
+  if (!isScatterMode && !isBlinkyDead && isBlinkyRegenerated) {
+    isBlinkyRegenerated = false;
+  }
+  if (isBlinkyDead) {
+    const blinkyStart = JSON.parse(JSON.stringify(levelData.blinkyStart));
+    blinkyDirection = moveDeadGhost(blinkyPosition, blinkyDirectionLast);
+    if (
+      blinkyPosition[0] === blinkyStart[0] &&
+      blinkyPosition[1] === blinkyStart[1]
+    ) {
+      isBlinkyDead = false;
+      isBlinkyRegenerated = true;
+      console.log('blinky alive again');
+      blinky.style.backgroundImage =
+        '../assets/characterSprites/blinky/blinky_left.svg';
+      blinkyPosition = blinkyStart;
+      blinky.style.gridColumnStart = `${blinkyStart[0] + 1}`;
+      blinky.style.gridRowStart = `${blinkyStart[1] + 1}`;
+    }
+  } else if (!isScatterMode || !isBlinkyDead || isBlinkyRegenerated) {
     blinkyDirection = moveGhost(
       blinkyPosition,
       pacmanPosition,
@@ -899,9 +1024,12 @@ const moveBlinky = () => {
   switch (blinkyDirection) {
     case 'up':
       blinkyPosition[1] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isBlinkyDead && !isBlinkyRegenerated) {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isBlinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_up.svg )';
       } else {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/blinky/blinky_up.svg )';
@@ -911,10 +1039,14 @@ const moveBlinky = () => {
       break;
     case 'down':
       blinkyPosition[1] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isBlinkyDead && !isBlinkyRegenerated) {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isBlinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_down.svg )';
       } else {
+        blinky.style.gridColumnStart = `${blinkyPosition[0] + 1}`;
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/blinky/blinky_down.svg )';
       }
@@ -923,9 +1055,12 @@ const moveBlinky = () => {
       break;
     case 'left':
       blinkyPosition[0] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isBlinkyDead && !isBlinkyRegenerated) {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isBlinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
       } else {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/blinky/blinky_left.svg )';
@@ -935,9 +1070,12 @@ const moveBlinky = () => {
       break;
     case 'right':
       blinkyPosition[0] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isBlinkyDead && !isBlinkyRegenerated) {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isBlinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         blinky.style.backgroundImage =
           'url(../assets/characterSprites/blinky/blinky_right.svg )';
@@ -955,6 +1093,10 @@ const movePinky = () => {
   // pinky targets the cell 4 spaces ahead of pacman in the direction pacman is currently moving
 
   let pinkyTargetCell;
+
+  if (!isScatterMode && !isPinkyDead && isPinkyRegenerated) {
+    isPinkyRegenerated = false;
+  }
 
   if (blinkyPosition !== levelData.blinkyStart && !pinkyStarted) {
     setTimeout(() => {
@@ -982,7 +1124,22 @@ const movePinky = () => {
       break;
   }
 
-  if (!isScatterMode) {
+  if (isPinkyDead) {
+    const blinkyStart = JSON.parse(JSON.stringify(levelData.pinkyStart));
+    pinkyDirection = moveDeadGhost(pinkyPosition, pinkyDirectionLast);
+    if (
+      pinkyPosition[0] === blinkyStart[0] &&
+      pinkyPosition[1] === blinkyStart[1]
+    ) {
+      isPinkyDead = false;
+      isPinkyRegenerated = true;
+      pinky.style.backgroundImage =
+        '../assets/characterSprites/blinky/blinky_left.svg';
+      pinkyPosition = blinkyStart;
+      pinky.style.gridColumnStart = `${blinkyStart[0] + 1}`;
+      pinky.style.gridRowStart = `${blinkyStart[1] + 1}`;
+    }
+  } else if (!isScatterMode || !isPinkyDead || isPinkyRegenerated) {
     pinkyDirection = moveGhost(
       pinkyPosition,
       pinkyTargetCell,
@@ -995,9 +1152,12 @@ const movePinky = () => {
   switch (pinkyDirection) {
     case 'up':
       pinkyPosition[1] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isPinkyDead && !isPinkyRegenerated) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isPinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_up.svg )';
       } else {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/pinky/pinky_up.svg )';
@@ -1007,9 +1167,12 @@ const movePinky = () => {
       break;
     case 'down':
       pinkyPosition[1] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isPinkyDead && !isPinkyRegenerated) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isPinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_down.svg )';
       } else {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/pinky/pinky_down.svg )';
@@ -1019,9 +1182,12 @@ const movePinky = () => {
       break;
     case 'left':
       pinkyPosition[0] -= 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isPinkyDead && !isPinkyRegenerated) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isPinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_left.svg )';
       } else {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/pinky/pinky_left.svg )';
@@ -1031,9 +1197,12 @@ const movePinky = () => {
       break;
     case 'right':
       pinkyPosition[0] += 1;
-      if (isScatterMode) {
+      if (isScatterMode && !isPinkyDead && !isPinkyRegenerated) {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/ghostGeneral/scared_blue.svg )';
+      } else if (isPinkyDead) {
+        blinky.style.backgroundImage =
+          'url(../assets/characterSprites/ghostGeneral/eyes_right.svg )';
       } else {
         pinky.style.backgroundImage =
           'url(../assets/characterSprites/pinky/pinky_right.svg )';
@@ -1051,7 +1220,9 @@ const moveInky = () => {
   // inky targets the cell that is the vector from blinky to the cell 2 spaces ahead of pacman in the direction pacman is currently moving, multiplied by 2 (so basically if blinky is at (5,5) and the cell 2 spaces ahead of pacman is (10,10), inky targets the cell (15,15))
   let inkyTargetCell;
   let cellTwoAhead;
-
+  if (!isScatterMode && !isInkyDead && isInkyRegenerated) {
+    isInkyRegenerated = false;
+  }
   if (blinkyPosition !== levelData.blinkyStart && !inkyStarted) {
     setTimeout(() => {
       inkyPosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
@@ -1083,7 +1254,22 @@ const moveInky = () => {
     cellTwoAhead[1] + (cellTwoAhead[1] - blinkyPosition[1]),
   ];
 
-  if (!isScatterMode) {
+  if (isInkyDead) {
+    const blinkyStart = JSON.parse(JSON.stringify(levelData.blinkyStart));
+    inkyDirection = moveDeadGhost(inkyPosition, inkyDirectionLast);
+    if (
+      inkyPosition[0] === blinkyStart[0] &&
+      inkyPosition[1] === blinkyStart[1]
+    ) {
+      isInkyDead = false;
+      isInkyRegenerated = true;
+      inky.style.backgroundImage =
+        '../assets/characterSprites/blinky/inky_left.svg';
+      inkyPosition = blinkyStart;
+      inky.style.gridColumnStart = `${blinkyStart[0] + 1}`;
+      inky.style.gridRowStart = `${blinkyStart[1] + 1}`;
+    }
+  } else if (!isScatterMode || !isInkyDead || isInkyRegenerated) {
     inkyDirection = moveGhost(inkyPosition, inkyTargetCell, inkyDirectionLast);
   } else {
     inkyDirection = moveGhost(inkyPosition, [27, 31], inkyDirectionLast);
@@ -1152,6 +1338,10 @@ const moveClyde = () => {
   );
   let clydeTargetCell;
 
+  if (!isScatterMode && !isClydeDead && isClydeRegenerated) {
+    isInkyRegenerated = false;
+  }
+
   if (clydePosition !== levelData.blinkyStart && !clydeStarted) {
     setTimeout(() => {
       clydePosition = JSON.parse(JSON.stringify(levelData.blinkyStart));
@@ -1169,7 +1359,22 @@ const moveClyde = () => {
     clydeTargetCell = [0, 31];
   }
 
-  if (!isScatterMode) {
+  if (isClydeDead) {
+    const blinkyStart = JSON.parse(JSON.stringify(levelData.blinkyStart));
+    clydeDirection = moveDeadGhost(clydePosition, clydeDirectionLast);
+    if (
+      clydePosition[0] === blinkyStart[0] &&
+      clydePosition[1] === blinkyStart[1]
+    ) {
+      isClydeDead = false;
+      isClydeRegenerated = true;
+      clyde.style.backgroundImage =
+        '../assets/characterSprites/blinky/clyde_left.svg';
+      clydePosition = blinkyStart;
+      clyde.style.gridColumnStart = `${blinkyStart[0] + 1}`;
+      clyde.style.gridRowStart = `${blinkyStart[1] + 1}`;
+    }
+  } else if (!isScatterMode || !isClydeDead || isClydeRegenerated) {
     clydeDirection = moveGhost(
       clydePosition,
       clydeTargetCell,
